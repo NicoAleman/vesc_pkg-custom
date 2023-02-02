@@ -107,11 +107,11 @@ Item {
                 }else if(state == 1){
                     stateString = "RUNNING"
                 }else if(state == 2){
-                    stateString = "RUNNING_TILTBACK"
+                    stateString = "RUNNING_TILTBACK_DUTY"
                 }else if(state == 3){
-                    stateString = "RUNNING_WHEELSLIP"
+                    stateString = "RUNNING_TILTBACK_HIGH_VOLTAGE"
                 }else if(state == 4){
-                    stateString = "RUNNING_UPSIDEDOWN"
+                    stateString = "RUNNING_TILTBACK_LOW_VOLTAGE"
                 }else if(state == 6){
                     stateString = "STOP_ANGLE_PITCH"
                 }else if(state == 7){
@@ -128,8 +128,14 @@ Item {
                         stateString = "STARTUP"
                     }
                 }else if(state == 12){
-                    stateString = "STOP_REVERSE"
+                    stateString = "RUNNING_TILTBACK_TEMP"
                 }else if(state == 13){
+                    stateString = "RUNNING_WHEELSLIP"
+                }else if(state == 14){
+                    stateString = "RUNNING_UPSIDEDOWN"
+                }else if(state == 15){
+                    stateString = "STOP_REVERSE"
+                }else if(state == 16){
                     stateString = "STOP_QUICKSTOP"
                 }else{
                     stateString = "UNKNOWN"

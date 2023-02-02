@@ -43,20 +43,25 @@ HEADER
 #define UNUSED(x) (void)(x)
 
 // Data type
+
+// Add new FloatStates to the end of enum to not break compatibility!
 typedef enum {
 	STARTUP = 0,
 	RUNNING = 1,
-	RUNNING_TILTBACK = 2,
-	RUNNING_WHEELSLIP = 3,
-	RUNNING_UPSIDEDOWN = 4,
+	RUNNING_TILTBACK_DUTY = 2,
+	RUNNING_TILTBACK_HIGH_VOLTAGE = 3,
+	RUNNING_TILTBACK_LOW_VOLTAGE = 4,
 	FAULT_ANGLE_PITCH = 6,	// skipped 5 for compatibility
 	FAULT_ANGLE_ROLL = 7,
 	FAULT_SWITCH_HALF = 8,
 	FAULT_SWITCH_FULL = 9,
 	FAULT_DUTY = 10, 		// unused but kept for compatibility
 	FAULT_STARTUP = 11,
-	FAULT_REVERSE = 12,
-	FAULT_QUICKSTOP = 13
+	RUNNING_TILTBACK_TEMP = 12,
+	RUNNING_WHEELSLIP = 13,
+	RUNNING_UPSIDEDOWN = 14,
+	FAULT_REVERSE = 15,
+	FAULT_QUICKSTOP = 16
 } FloatState;
 
 typedef enum {
@@ -618,7 +623,7 @@ static SwitchState check_adcs(data *d) {
 		}
 	}
 
-	if ((sw_state == OFF) && (d->state <= RUNNING_TILTBACK)) {
+	if ((sw_state == OFF) && (d->state <= RUNNING_TILTBACK_DUTY)) {
 		if (d->abs_erpm > d->switch_warn_buzz_erpm) {
 			// If we're at riding speed and the switch is off => ALERT the user
 			// set force=true since this could indicate an imminent shutdown/nosedive
@@ -841,7 +846,7 @@ static void calculate_setpoint_target(data *d) {
 			d->setpoint_target = -d->float_conf.tiltback_duty_angle;
 		}
 		d->setpointAdjustmentType = TILTBACK_DUTY;
-		d->state = RUNNING_TILTBACK;
+		d->state = RUNNING_TILTBACK_DUTY;
 	} else if (d->abs_duty_cycle > 0.05 && input_voltage > d->float_conf.tiltback_hv) {
 		beep_alert(d, 3, false);	// Triple-beep
 		if (((d->current_time - d->tb_highvoltage_timer) > .5) ||
@@ -854,7 +859,7 @@ static void calculate_setpoint_target(data *d) {
 			}
 
 			d->setpointAdjustmentType = TILTBACK_HV;
-			d->state = RUNNING_TILTBACK;
+			d->state = RUNNING_TILTBACK_HIGH_VOLTAGE;
 		}
 		else {
 			// The rider has 500ms to react to the triple-beep, or maybe it was just a short spike
@@ -871,7 +876,7 @@ static void calculate_setpoint_target(data *d) {
 				d->setpoint_target = -d->float_conf.tiltback_lv_angle;
 			}
 			d->setpointAdjustmentType = TILTBACK_TEMP;
-			d->state = RUNNING_TILTBACK;
+			d->state = RUNNING_TILTBACK_TEMP;
 		}
 		else {
 			// The rider has 1 degree Celsius left before we start tilting back
@@ -888,7 +893,7 @@ static void calculate_setpoint_target(data *d) {
 				d->setpoint_target = -d->float_conf.tiltback_lv_angle;
 			}
 			d->setpointAdjustmentType = TILTBACK_TEMP;
-			d->state = RUNNING_TILTBACK;
+			d->state = RUNNING_TILTBACK_TEMP;
 		}
 		else {
 			// The rider has 1 degree Celsius left before we start tilting back
@@ -912,7 +917,7 @@ static void calculate_setpoint_target(data *d) {
 			}
 
 			d->setpointAdjustmentType = TILTBACK_LV;
-			d->state = RUNNING_TILTBACK;
+			d->state = RUNNING_TILTBACK_LOW_VOLTAGE;
 		}
 		else {
 			d->setpointAdjustmentType = TILTBACK_NONE;
@@ -1663,7 +1668,10 @@ static void float_thd(void *arg) {
 				break;
 
 		case (RUNNING):
-		case (RUNNING_TILTBACK):
+		case (RUNNING_TILTBACK_DUTY):
+		case (RUNNING_TILTBACK_HIGH_VOLTAGE):
+		case (RUNNING_TILTBACK_LOW_VOLTAGE):
+		case (RUNNING_TILTBACK_TEMP):
 		case (RUNNING_WHEELSLIP):
 		case (RUNNING_UPSIDEDOWN):
 			// Check for faults
