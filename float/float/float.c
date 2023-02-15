@@ -185,8 +185,9 @@ typedef struct {
 	float reverse_stop_step_size, reverse_tolerance, reverse_total_erpm;
 	float reverse_timer;
 
-	// Feature: Simple start
+	// Feature: Simple Start
 	bool enable_simple_start;
+	bool is_simple_start;
 
 	// Feature: Soft Start
 	float softstart_pid_limit, softstart_ramp_step_size;
@@ -624,11 +625,7 @@ static SwitchState check_adcs(data *d) {
 		if(d->adc1 > d->float_conf.fault_adc1 && d->adc2 > d->float_conf.fault_adc2){
 			sw_state = ON;
 		}else if(d->adc1 > d->float_conf.fault_adc1 || d->adc2 > d->float_conf.fault_adc2){
-			// 5 seconds after stopping we allow starting with a single sensor (e.g. for jump starts)
-			bool is_simple_start = d->float_conf.startup_simplestart_enabled &&
-				(d->current_time - d->disengage_timer > 5);
-
-			if (d->float_conf.fault_is_dual_switch || is_simple_start)
+			if (d->float_conf.fault_is_dual_switch || (d->state != RUNNING && d->is_simple_start))
 				sw_state = ON;
 			else
 				sw_state = HALF;
@@ -1637,6 +1634,15 @@ static void float_thd(void *arg) {
 		if ((d->abs_yaw_change > 0.04) && !unchanged)	// don't count tiny yaw changes towards aggregate
 			d->yaw_aggregate += d->yaw_change;
 
+		// Feature: Simple Start
+		// 5 seconds after stopping (or after meeting certain conditions), we allow starting with a single sensor (e.g. for jump starts)
+		if (d->float_conf.startup_simplestart_enabled && !d->is_simple_start) {
+			d->is_simple_start = (d->current_time - d->disengage_timer > 5) || // 5 Second Cooldown OR
+								 ((d->current_time - d->disengage_timer > 0.05) && // 0.05 Second Cooldown + meeting one of below conditions:
+								 ((d->switch_state == OFF) || // Switch State Off
+								 (fabsf(d->pitch_angle) > (d->startup_pitch_tolerance + 1)))); // Left Pitch Tolerance + 1°
+		}
+
 		d->switch_state = check_adcs(d);
 
 		// Log Values
@@ -1657,6 +1663,7 @@ static void float_thd(void *arg) {
 				if (VESC_IF->imu_startup_done()) {
 					reset_vars(d);
 					d->state = FAULT_STARTUP; // Trigger a fault so we need to meet start conditions to start
+					d->is_simple_start = d->float_conf.startup_simplestart_enabled;
 
 					// Are we within 5V of the LV tiltback threshold? Issue 1 beep for each volt below that
 					float bat_volts = VESC_IF->mc_get_input_voltage_filtered();
@@ -1683,6 +1690,7 @@ static void float_thd(void *arg) {
 					d->startup_pitch_tolerance = d->float_conf.startup_pitch_tolerance + d->startup_pitch_trickmargin;
 					d->fault_angle_pitch_timer = d->current_time;
 				}
+				d->is_simple_start = false;
 				break;
 			}
 			d->odometer_dirty = 1;
