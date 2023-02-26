@@ -2316,7 +2316,7 @@ static void cmd_runtime_tune_other(data *d, unsigned char *cfg)
 	float tiltvarrate = cfg[9];
 	float tiltvarmax = cfg[10];
 
-	if (fabsf(tiltconst <= 20)) {
+	if ( fabsf(tiltconst) <= 20.0f ) {
 		d->float_conf.tiltback_constant = tiltconst / 2;
 		d->float_conf.tiltback_constant_erpm = tilterpm;
 		d->noseangling_step_size = tiltspeed / 10 / d->float_conf.hertz;
