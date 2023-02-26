@@ -1206,7 +1206,7 @@ p, li { white-space: pre-wrap; }
             <vTx>9</vTx>
         </torquetilt_start_current>
         <torquetilt_angle_limit>
-            <longName>Tilitback Angle Limit</longName>
+            <longName>Tiltback Angle Limit</longName>
             <type>1</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1338,7 +1338,7 @@ p, li { white-space: pre-wrap; }
             <vTx>9</vTx>
         </turntilt_strength>
         <turntilt_angle_limit>
-            <longName>Tilitback Angle Limit</longName>
+            <longName>Tiltback Angle Limit</longName>
             <type>1</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;

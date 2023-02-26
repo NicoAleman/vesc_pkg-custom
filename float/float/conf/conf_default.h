@@ -288,7 +288,7 @@
 #define APPCONF_FLOAT_TORQUETILT_START_CURRENT 15
 #endif
 
-// Tilitback Angle Limit
+// Tiltback Angle Limit
 #ifndef APPCONF_FLOAT_TORQUETILT_ANGLE_LIMIT
 #define APPCONF_FLOAT_TORQUETILT_ANGLE_LIMIT 8
 #endif
@@ -318,7 +318,7 @@
 #define APPCONF_FLOAT_TURNTILT_STRENGTH 6
 #endif
 
-// Tilitback Angle Limit
+// Tiltback Angle Limit
 #ifndef APPCONF_FLOAT_TURNTILT_ANGLE_LIMIT
 #define APPCONF_FLOAT_TURNTILT_ANGLE_LIMIT 3
 #endif
@@ -373,7 +373,7 @@
 #define APPCONF_FLOAT_ATR_SPEED_BOOST 0.3
 #endif
 
-// Tilitback Angle Limit
+// Tiltback Angle Limit
 #ifndef APPCONF_FLOAT_ATR_ANGLE_LIMIT
 #define APPCONF_FLOAT_ATR_ANGLE_LIMIT 8
 #endif
