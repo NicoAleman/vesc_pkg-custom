@@ -193,6 +193,11 @@
 #define APPCONF_FLOAT_INPUTTILT_DEADBAND 0.1
 #endif
 
+// Input Sensitivity
+#ifndef APPCONF_FLOAT_INPUTTILT_SENSITIVITY
+#define APPCONF_FLOAT_INPUTTILT_SENSITIVITY 0
+#endif
+
 // Throttle Current Maximum
 #ifndef APPCONF_FLOAT_REMOTE_THROTTLE_CURRENT_MAX
 #define APPCONF_FLOAT_REMOTE_THROTTLE_CURRENT_MAX 0
@@ -288,7 +293,7 @@
 #define APPCONF_FLOAT_TORQUETILT_START_CURRENT 15
 #endif
 
-// Tilitback Angle Limit
+// Tiltback Angle Limit
 #ifndef APPCONF_FLOAT_TORQUETILT_ANGLE_LIMIT
 #define APPCONF_FLOAT_TORQUETILT_ANGLE_LIMIT 8
 #endif
@@ -318,7 +323,7 @@
 #define APPCONF_FLOAT_TURNTILT_STRENGTH 6
 #endif
 
-// Tilitback Angle Limit
+// Tiltback Angle Limit
 #ifndef APPCONF_FLOAT_TURNTILT_ANGLE_LIMIT
 #define APPCONF_FLOAT_TURNTILT_ANGLE_LIMIT 3
 #endif
@@ -373,7 +378,7 @@
 #define APPCONF_FLOAT_ATR_SPEED_BOOST 0.3
 #endif
 
-// Tilitback Angle Limit
+// Tiltback Angle Limit
 #ifndef APPCONF_FLOAT_ATR_ANGLE_LIMIT
 #define APPCONF_FLOAT_ATR_ANGLE_LIMIT 8
 #endif
@@ -440,7 +445,7 @@
 
 // Package Version
 #ifndef APPCONF_FLOAT_VERSION
-#define APPCONF_FLOAT_VERSION 0.9
+#define APPCONF_FLOAT_VERSION 0.91
 #endif
 
 // CONF_DEFAULT_H_

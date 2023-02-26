@@ -16,7 +16,7 @@ cd balance/balance/
 make clean
 make
 cd ../
-$VT --buildPkg 'balance.vescpkg:balance.lisp:ui.qml:0:README.md:Balance'
+$VT --buildPkg 'balance.vescpkg:balance.lisp:ui.qml:README.md:Balance'
 cd balance
 make clean
 cd ../../
@@ -41,7 +41,7 @@ date +'%D %T' >> READMEx.md
 echo "- Git Commit: #" >> READMEx.md
 truncate -s-1 READMEx.md
 git rev-parse --short HEAD >> READMEx.md
-$VT --buildPkg 'float.vescpkg:float.lisp:ui.qml:0:READMEx.md:Float'
+$VT --buildPkg 'float.vescpkg:float.lisp:ui.qml:READMEx.md:Float'
 rm READMEx.md
 cd float
 #make clean
@@ -49,7 +49,7 @@ cd ../../
 
 # logui
 cd logui/
-$VT --buildPkg 'logui.vescpkg:logger.lisp:ui.qml:0:README.md:LogUI'
+$VT --buildPkg 'logui.vescpkg:logger.lisp:ui.qml:README.md:LogUI'
 cd ../
 
 ## Libraries
@@ -59,14 +59,14 @@ cd lib_ws2812/ws2812/
 make clean
 make
 cd ../
-$VT --buildPkg 'ws2812.vescpkg:ws2812.lisp::0'
+$VT --buildPkg 'ws2812.vescpkg:ws2812.lisp::'
 cd ws2812
 make clean
 cd ../../
 
 # NAU7802
 cd lib_nau7802/
-$VT --buildPkg 'nau7802.vescpkg:nau7802.lisp::0'
+$VT --buildPkg 'nau7802.vescpkg:nau7802.lisp::'
 cd ../
 
 # Interpolation
@@ -74,7 +74,7 @@ cd lib_interpolation/interpolation/
 make clean
 make
 cd ../
-$VT --buildPkg 'interpolation.vescpkg:interpolation.lisp::0:README.md:Interpolation'
+$VT --buildPkg 'interpolation.vescpkg:interpolation.lisp::README.md:Interpolation'
 cd interpolation
 make clean
 cd ../../

@@ -1578,12 +1578,17 @@ static void float_thd(void *arg) {
 		if (!remote_connected) {
 			servo_val = 0;
 		} else {
-			// Apply Deadband
+			// Apply Deadband (if any)
 			float deadband = d->float_conf.inputtilt_deadband;
 			if (fabsf(servo_val) < deadband) {
-				servo_val = 0.0;
+				servo_val = 0.0f;
 			} else {
-				servo_val = SIGN(servo_val) * (fabsf(servo_val) - deadband) / (1 - deadband);
+                // Apply exponential to linear response based on specified throttle sensitivity
+                float sensitivity = d->float_conf.inputtilt_sensitivity;
+                float servo_sign = SIGN(servo_val);
+				float exponent = (sensitivity > 0) ? (1.0f - sensitivity) : (1.0f / (1.0f + sensitivity));
+				servo_val = (fabsf(servo_val) - deadband) / (1.0f - deadband);
+				servo_val = servo_sign * powf(servo_val, exponent);
 			}
 
 			// Invert Throttle
@@ -2316,7 +2321,7 @@ static void cmd_runtime_tune_other(data *d, unsigned char *cfg)
 	float tiltvarrate = cfg[9];
 	float tiltvarmax = cfg[10];
 
-	if (fabsf(tiltconst <= 20)) {
+	if ( fabsf(tiltconst) <= 20.0f ) {
 		d->float_conf.tiltback_constant = tiltconst / 2;
 		d->float_conf.tiltback_constant_erpm = tilterpm;
 		d->noseangling_step_size = tiltspeed / 10 / d->float_conf.hertz;

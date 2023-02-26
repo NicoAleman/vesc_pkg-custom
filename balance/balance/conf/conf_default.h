@@ -283,7 +283,7 @@
 #define APPCONF_BALANCE_TORQUETILT_START_CURRENT 10
 #endif
 
-// Tilitback Angle Limit
+// Tiltback Angle Limit
 #ifndef APPCONF_BALANCE_TORQUETILT_ANGLE_LIMIT
 #define APPCONF_BALANCE_TORQUETILT_ANGLE_LIMIT 5
 #endif
@@ -313,7 +313,7 @@
 #define APPCONF_BALANCE_TURNTILT_STRENGTH 0
 #endif
 
-// Tilitback Angle Limit
+// Tiltback Angle Limit
 #ifndef APPCONF_BALANCE_TURNTILT_ANGLE_LIMIT
 #define APPCONF_BALANCE_TURNTILT_ANGLE_LIMIT 5
 #endif

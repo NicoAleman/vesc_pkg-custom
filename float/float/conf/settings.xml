@@ -859,6 +859,30 @@ p, li { white-space: pre-wrap; }
             <suffix> %</suffix>
             <vTx>7</vTx>
         </inputtilt_deadband>
+        <inputtilt_sensitivity>
+            <longName>Input Sensitivity</longName>
+            <type>1</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Sensitivity adder for the input throttle. Helps increase/reduce sensitivity in response to the throttle being pushed in any direction.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For example, a Sensitivity of +0% will map to a simple linear response (default). A Sensitivity of +50% will map to a logarithmic response where the tilt will be very responsive to the throttle being pushed mildly. A Sensitivity of -50% will map to an exponential response where the tilt will not be very responsive when the throttle is being pushed mildly but becomes exponentially more responsive as you push the throttle further.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_INPUTTILT_SENSITIVITY</cDefine>
+            <editorDecimalsDouble>2</editorDecimalsDouble>
+            <editorScale>1</editorScale>
+            <editAsPercentage>1</editAsPercentage>
+            <maxDouble>0.95</maxDouble>
+            <minDouble>-0.95</minDouble>
+            <showDisplay>0</showDisplay>
+            <stepDouble>1</stepDouble>
+            <valDouble>0</valDouble>
+            <vTxDoubleScale>10000</vTxDoubleScale>
+            <suffix> %</suffix>
+            <vTx>7</vTx>
+        </inputtilt_sensitivity>
         <remote_throttle_current_max>
             <longName>Throttle Current Maximum</longName>
             <type>1</type>
@@ -1261,7 +1285,7 @@ p, li { white-space: pre-wrap; }
             <vTx>7</vTx>
         </torquetilt_start_current>
         <torquetilt_angle_limit>
-            <longName>Tilitback Angle Limit</longName>
+            <longName>Tiltback Angle Limit</longName>
             <type>1</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1472,7 +1496,7 @@ p, li { white-space: pre-wrap; }
             <vTx>7</vTx>
         </atr_speed_boost>
         <atr_angle_limit>
-            <longName>Tilitback Angle Limit</longName>
+            <longName>Tiltback Angle Limit</longName>
             <type>1</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1734,7 +1758,7 @@ p, li { white-space: pre-wrap; }
             <vTx>7</vTx>
         </turntilt_strength>
         <turntilt_angle_limit>
-            <longName>Tilitback Angle Limit</longName>
+            <longName>Tiltback Angle Limit</longName>
             <type>1</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1945,11 +1969,11 @@ p, li { white-space: pre-wrap; }
             <editorDecimalsDouble>2</editorDecimalsDouble>
             <editorScale>1</editorScale>
             <editAsPercentage>0</editAsPercentage>
-            <maxDouble>0.9</maxDouble>
-            <minDouble>0.9</minDouble>
+            <maxDouble>0.91</maxDouble>
+            <minDouble>0.91</minDouble>
             <showDisplay>0</showDisplay>
             <stepDouble>1</stepDouble>
-            <valDouble>0.9</valDouble>
+            <valDouble>0.91</valDouble>
             <vTxDoubleScale>1000</vTxDoubleScale>
             <suffix></suffix>
             <vTx>7</vTx>
@@ -1994,6 +2018,7 @@ p, li { white-space: pre-wrap; }
         <ser>inputtilt_speed</ser>
         <ser>inputtilt_invert_throttle</ser>
         <ser>inputtilt_deadband</ser>
+        <ser>inputtilt_sensitivity</ser>
         <ser>remote_throttle_current_max</ser>
         <ser>remote_throttle_grace_period</ser>
         <ser>startup_pitch_tolerance</ser>
@@ -2181,6 +2206,7 @@ p, li { white-space: pre-wrap; }
                     <param>inputtilt_speed</param>
                     <param>inputtilt_invert_throttle</param>
                     <param>inputtilt_deadband</param>
+                    <param>inputtilt_sensitivity</param>
                     <param>::sep::Remote Throttle</param>
                     <param>remote_throttle_current_max</param>
                     <param>remote_throttle_grace_period</param>
