@@ -1620,6 +1620,24 @@ static void float_thd(void *arg) {
 				servo_val = SIGN(servo_val) * (fabsf(servo_val) - deadband) / (1 - deadband);
 			}
 
+			// Apply Throttle Curve
+			float curve = d->float_conf.inputtilt_curve;
+			float servo_val_abs = fabsf(servo_val);
+			float ret = 0;
+			if (fabsf(curve) > 0) {
+				if (curve >= 0.0) {
+					ret = 1.0 - powf(1.0 - servo_val_abs, 1.0 + curve);
+				} else {
+					ret = powf(servo_val_abs, 1.0 - curve);
+		}
+
+				if (servo_val < 0.0) {
+					ret = -ret;
+				}
+
+				servo_val = ret;
+			}
+
 			// Invert Throttle
 			servo_val *= (d->float_conf.inputtilt_invert_throttle ? -1.0 : 1.0);
 		}

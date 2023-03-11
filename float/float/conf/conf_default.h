@@ -185,7 +185,7 @@
 
 // Tiltback Speed
 #ifndef APPCONF_FLOAT_INPUTTILT_SPEED
-#define APPCONF_FLOAT_INPUTTILT_SPEED 20
+#define APPCONF_FLOAT_INPUTTILT_SPEED 30
 #endif
 
 // Tiltback Smoothing Factor
@@ -201,6 +201,11 @@
 // Input Deadband
 #ifndef APPCONF_FLOAT_INPUTTILT_DEADBAND
 #define APPCONF_FLOAT_INPUTTILT_DEADBAND 0.1
+#endif
+
+// Input Curve
+#ifndef APPCONF_FLOAT_INPUTTILT_CURVE
+#define APPCONF_FLOAT_INPUTTILT_CURVE 0
 #endif
 
 // Throttle Current Maximum

@@ -908,6 +908,37 @@ p, li { white-space: pre-wrap; }
             <suffix> %</suffix>
             <vTx>7</vTx>
         </inputtilt_deadband>
+        <inputtilt_curve>
+            <longName>Input Curve</longName>
+            <type>1</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Applies an Exponential Curve to the remote input. Increasing the magnitude of this value will increase the magnitude of the effect. Visit this Desmos link to try different values of &lt;span style=&quot; font-style:italic;&quot;&gt;c&lt;/span&gt; and view the curve for yourself: &lt;a href=&quot;https://www.desmos.com/calculator/dbmojvxo21&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#9696ff;&quot;&gt;Input Curve Graph&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Zero (0)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Linear throttle&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Negative (&amp;lt;0)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The throttle is more precise close to 0 and increases exponentially towards full throttle.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Positive (&amp;gt;0)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The throttle reacts aggressively around 0 and is more precise towards full throttle.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_INPUTTILT_CURVE</cDefine>
+            <editorDecimalsDouble>2</editorDecimalsDouble>
+            <editorScale>1</editorScale>
+            <editAsPercentage>1</editAsPercentage>
+            <maxDouble>3.25</maxDouble>
+            <minDouble>-3.25</minDouble>
+            <showDisplay>1</showDisplay>
+            <stepDouble>1</stepDouble>
+            <valDouble>0</valDouble>
+            <vTxDoubleScale>10000</vTxDoubleScale>
+            <suffix></suffix>
+            <vTx>7</vTx>
+        </inputtilt_curve>
         <remote_throttle_current_max>
             <longName>Throttle Current Maximum</longName>
             <type>1</type>
@@ -2045,6 +2076,7 @@ p, li { white-space: pre-wrap; }
         <ser>inputtilt_smoothing_factor</ser>
         <ser>inputtilt_invert_throttle</ser>
         <ser>inputtilt_deadband</ser>
+        <ser>inputtilt_curve</ser>
         <ser>remote_throttle_current_max</ser>
         <ser>remote_throttle_grace_period</ser>
         <ser>startup_pitch_tolerance</ser>
@@ -2227,13 +2259,15 @@ p, li { white-space: pre-wrap; }
             <subgroup>
                 <subgroupName>Remote</subgroupName>
                 <subgroupParams>
-                    <param>::sep::Remote Tiltback</param>
+                    <param>::sep:: Remote Settings</param>
                     <param>inputtilt_remote_type</param>
+                    <param>inputtilt_deadband</param>
+                    <param>inputtilt_curve</param>
+                    <param>::sep::Remote Tiltback</param>
                     <param>inputtilt_angle_limit</param>
                     <param>inputtilt_speed</param>
                     <param>inputtilt_smoothing_factor</param>
                     <param>inputtilt_invert_throttle</param>
-                    <param>inputtilt_deadband</param>
                     <param>::sep::Remote Throttle</param>
                     <param>remote_throttle_current_max</param>
                     <param>remote_throttle_grace_period</param>

@@ -50,6 +50,7 @@ int32_t confparser_serialize_float_config(uint8_t *buffer, const float_config *c
 	buffer[ind++] = (uint8_t)conf->inputtilt_smoothing_factor;
 	buffer[ind++] = conf->inputtilt_invert_throttle;
 	buffer_append_float16(buffer, conf->inputtilt_deadband, 10000, &ind);
+	buffer_append_float16(buffer, conf->inputtilt_curve, 10000, &ind);
 	buffer_append_float16(buffer, conf->remote_throttle_current_max, 10, &ind);
 	buffer_append_float16(buffer, conf->remote_throttle_grace_period, 10, &ind);
 	buffer_append_float16(buffer, conf->startup_pitch_tolerance, 100, &ind);
@@ -152,6 +153,7 @@ bool confparser_deserialize_float_config(const uint8_t *buffer, float_config *co
 	conf->inputtilt_smoothing_factor = buffer[ind++];
 	conf->inputtilt_invert_throttle = buffer[ind++];
 	conf->inputtilt_deadband = buffer_get_float16(buffer, 10000, &ind);
+	conf->inputtilt_curve = buffer_get_float16(buffer, 10000, &ind);
 	conf->remote_throttle_current_max = buffer_get_float16(buffer, 10, &ind);
 	conf->remote_throttle_grace_period = buffer_get_float16(buffer, 10, &ind);
 	conf->startup_pitch_tolerance = buffer_get_float16(buffer, 100, &ind);
@@ -247,6 +249,7 @@ void confparser_set_defaults_float_config(float_config *conf) {
 	conf->inputtilt_smoothing_factor = APPCONF_FLOAT_INPUTTILT_SMOOTHING_FACTOR;
 	conf->inputtilt_invert_throttle = APPCONF_FLOAT_INPUTTILT_INVERT_THROTTLE;
 	conf->inputtilt_deadband = APPCONF_FLOAT_INPUTTILT_DEADBAND;
+	conf->inputtilt_curve = APPCONF_FLOAT_INPUTTILT_CURVE;
 	conf->remote_throttle_current_max = APPCONF_FLOAT_REMOTE_THROTTLE_CURRENT_MAX;
 	conf->remote_throttle_grace_period = APPCONF_FLOAT_REMOTE_THROTTLE_GRACE_PERIOD;
 	conf->startup_pitch_tolerance = APPCONF_FLOAT_STARTUP_PITCH_TOLERANCE;
