@@ -1,3 +1,5 @@
-float/float.lisp
-README-pkg.md
-ui.qml
+c_lib/float/float.bin
+c_lib/float/float.lisp
+c_lib/float/float.list
+float.vescpkg
+
