@@ -129,6 +129,13 @@ typedef struct {
 	bool is_surgebuzz_enabled;
 	float surge_duty_start;
 	float surge_angle;
+	float buzz_current;
+	int buzz_period_1;
+	int buzz_period_2;
+	float buzz_time;
+	float buzz_motor_current;
+	float buzz_battery_current;
+	float buzz_duty_cycle;
 } float_config;
 
 // DATATYPES_H_

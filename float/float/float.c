@@ -149,7 +149,7 @@ typedef struct {
 	float gyro[3];
 	float duty_cycle, abs_duty_cycle, duty_smooth;
 	float erpm, abs_erpm, avg_erpm;
-	float motor_current;
+	float motor_current, battery_current;
 	float adc1, adc2;
 	float throttle_val;
 	float max_duty_with_margin;
@@ -1604,16 +1604,24 @@ static void apply_turntilt(data *d) {
 }
 
 static float haptic_buzz(data *d) {
-	if (d->setpointAdjustmentType > TILTBACK_NONE) {
+	if (d->setpointAdjustmentType > TILTBACK_NONE || 
+		d->motor_current > d->float_conf.buzz_motor_current ||
+		d->battery_current > d->float_conf.buzz_battery_current ||
+		d->abs_duty_cycle > d->float_conf.buzz_duty_cycle) {
 		d->haptic_counter += 1;
 
-		float buzz_current = fminf(10, d->float_conf.booster_current);
-		int buzz_period = d->float_conf.booster_angle;
+		float buzz_current = d->float_conf.buzz_current;
+		int buzz_period = d->float_conf.buzz_period_1;
 
 		if (d->haptic_mode == 1) {
 			// alternate between two frequencies, depending on "mode"
-			buzz_period += 1;
+			buzz_period = d->float_conf.buzz_period_2;
 		}
+
+		if (buzz_period < 0) {
+			buzz_current = 0;
+		}
+
 		if (d->haptic_counter > buzz_period) {
 			d->haptic_counter = 0;
 		}
@@ -1626,7 +1634,7 @@ static float haptic_buzz(data *d) {
 				d->applied_haptic_current = buzz_current;
 			}
 
-			if (fabsf(d->haptic_timer - d->current_time) > 0.3) {
+			if (fabsf(d->haptic_timer - d->current_time) > d->float_conf.buzz_time) {
 				d->haptic_mode = 1 - d->haptic_mode;
 				d->haptic_timer = d->current_time;
 			}
@@ -1705,6 +1713,7 @@ static void float_thd(void *arg) {
 
 		// Read values for GUI
 		d->motor_current = VESC_IF->mc_get_tot_current_directional_filtered();
+		d->battery_current = VESC_IF->mc_get_tot_current_in_filtered();
 
 		// Get the IMU Values
 		d->roll_angle = RAD2DEG_f(VESC_IF->ahrs_get_roll(&d->m_att_ref));
