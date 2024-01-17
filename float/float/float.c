@@ -147,7 +147,7 @@ typedef struct {
 	float startup_step_size;
 	float tiltback_duty_step_size, tiltback_hv_step_size, tiltback_lv_step_size, tiltback_return_step_size;
 	float torquetilt_on_step_size, torquetilt_off_step_size, turntilt_step_size;
-	float tiltback_variable, tiltback_variable_max_erpm, noseangling_step_size, inputtilt_ramped_step_size, inputtilt_step_size;
+	float tiltback_variable, tiltback_variable_max_erpm, noseangling_step_size, inputtilt_ramped_step_size, inputtilt_step_size, inputtilt_disconnected_step_size;
 	float mc_max_temp_fet, mc_max_temp_mot;
 	float mc_current_max, mc_current_min, current_max, current_min, max_continuous_current;
 	float surge_angle, surge_angle2, surge_angle3, surge_adder;
@@ -167,6 +167,7 @@ typedef struct {
 	float erpm, abs_erpm, avg_erpm;
 	float motor_current;
 	float throttle_val;
+	bool remote_connected;
 	float max_duty_with_margin;
 	FootpadSensor footpad_sensor;
 
@@ -408,6 +409,7 @@ static void configure(data *d) {
 	d->turntilt_step_size = d->float_conf.turntilt_speed / d->float_conf.hertz;
 	d->noseangling_step_size = d->float_conf.noseangling_speed / d->float_conf.hertz;
 	d->inputtilt_step_size = d->float_conf.inputtilt_speed / d->float_conf.hertz;
+	d->inputtilt_disconnected_step_size = (float)5 / d->float_conf.hertz;
 
 	d->surge_angle = d->float_conf.surge_angle;
 	d->surge_angle2 = d->float_conf.surge_angle * 2;
@@ -563,6 +565,7 @@ static void reset_vars(data *d) {
 	d->torqueresponse_interpolated = 0;
 	d->turntilt_target = 0;
 	d->turntilt_interpolated = 0;
+	d->remote_connected = false;
 	d->setpointAdjustmentType = CENTERING;
 	d->state = RUNNING;
 	d->current_time = 0;
@@ -1148,6 +1151,7 @@ static void apply_noseangling(data *d){
 
 static void apply_inputtilt(data *d){ // Input Tiltback
 	float input_tiltback_target;
+	float tiltback_step_size;
 	 
 	// Scale by Max Angle
 	input_tiltback_target = d->throttle_val * d->float_conf.inputtilt_angle_limit;
@@ -1179,6 +1183,8 @@ static void apply_inputtilt(data *d){ // Input Tiltback
 
 	float input_tiltback_target_diff = input_tiltback_target - d->inputtilt_interpolated;
 
+	tiltback_step_size = d->remote_connected ? d->inputtilt_step_size : d->inputtilt_disconnected_step_size;
+
 	if (d->float_conf.inputtilt_smoothing_factor > 0) { // Smoothen changes in tilt angle by ramping the step size
 		float smoothing_factor = 0.02;
 		for (int i = 1; i < d->float_conf.inputtilt_smoothing_factor; i++) {
@@ -1187,22 +1193,22 @@ static void apply_inputtilt(data *d){ // Input Tiltback
 
 		float smooth_center_window = 1.5 + (0.5 * d->float_conf.inputtilt_smoothing_factor); // Sets the angle away from Target that step size begins ramping down
 		if (fabsf(input_tiltback_target_diff) < smooth_center_window) { // Within X degrees of Target Angle, start ramping down step size
-			d->inputtilt_ramped_step_size = (smoothing_factor * d->inputtilt_step_size * (input_tiltback_target_diff / 2)) + ((1 - smoothing_factor) * d->inputtilt_ramped_step_size); // Target step size is reduced the closer to center you are (needed for smoothly transitioning away from center)
-			float centering_step_size = fminf(fabsf(d->inputtilt_ramped_step_size), fabsf(input_tiltback_target_diff / 2) * d->inputtilt_step_size) * SIGN(input_tiltback_target_diff); // Linearly ramped down step size is provided as minimum to prevent overshoot
+			d->inputtilt_ramped_step_size = (smoothing_factor * tiltback_step_size * (input_tiltback_target_diff / 2)) + ((1 - smoothing_factor) * d->inputtilt_ramped_step_size); // Target step size is reduced the closer to center you are (needed for smoothly transitioning away from center)
+			float centering_step_size = fminf(fabsf(d->inputtilt_ramped_step_size), fabsf(input_tiltback_target_diff / 2) * tiltback_step_size) * SIGN(input_tiltback_target_diff); // Linearly ramped down step size is provided as minimum to prevent overshoot
 			if (fabsf(input_tiltback_target_diff) < fabsf(centering_step_size)) {
 				d->inputtilt_interpolated = input_tiltback_target;
 			} else {
 				d->inputtilt_interpolated += centering_step_size;
 			}
 		} else { // Ramp up step size until the configured tilt speed is reached
-			d->inputtilt_ramped_step_size = (smoothing_factor * d->inputtilt_step_size * SIGN(input_tiltback_target_diff)) + ((1 - smoothing_factor) * d->inputtilt_ramped_step_size);
+			d->inputtilt_ramped_step_size = (smoothing_factor * tiltback_step_size * SIGN(input_tiltback_target_diff)) + ((1 - smoothing_factor) * d->inputtilt_ramped_step_size);
 			d->inputtilt_interpolated += d->inputtilt_ramped_step_size;
 		}
 	} else { // Constant step size; no smoothing
-		if (fabsf(input_tiltback_target_diff) < d->inputtilt_step_size){
+		if (fabsf(input_tiltback_target_diff) < tiltback_step_size){
 		d->inputtilt_interpolated = input_tiltback_target;
 	} else {
-		d->inputtilt_interpolated += d->inputtilt_step_size * SIGN(input_tiltback_target_diff);
+		d->inputtilt_interpolated += tiltback_step_size * SIGN(input_tiltback_target_diff);
 	}
 	}
 
@@ -1811,24 +1817,24 @@ static void float_thd(void *arg) {
 		d->duty_smooth = d->duty_smooth * 0.9 + d->duty_cycle * 0.1;
 
 		// UART/PPM Remote Throttle ///////////////////////
-		bool remote_connected = false;
 		float servo_val = 0;
 
 		switch (d->float_conf.inputtilt_remote_type) {
 		case (INPUTTILT_PPM):
 			servo_val = VESC_IF->get_ppm();
-			remote_connected = VESC_IF->get_ppm_age() < 1;
+			d->remote_connected = VESC_IF->get_ppm_age() < 1;
 			break;
 		case (INPUTTILT_UART): ; // Don't delete ";", required to avoid compiler error with first line variable init
 			remote_state remote = VESC_IF->get_remote_state();
 			servo_val = remote.js_y;
-			remote_connected = remote.age_s < 1;
+			d->remote_connected = remote.age_s < 1;
 			break;
 		case (INPUTTILT_NONE):
+			d->remote_connected = false;
 			break;
 		}
 		
-		if (!remote_connected) {
+		if (!d->remote_connected) {
 			servo_val = 0;
 		} else {
 			// Apply Deadband
