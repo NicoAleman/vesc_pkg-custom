@@ -52,7 +52,11 @@ Item {
     property ConfigParams mAppConf: VescIf.appConfig()
     property ConfigParams mCustomConf: VescIf.customConfig(0)
     property var quicksaveNames: []
+    property var info_received : 0
+    property var has_lcm: 0
+    property var has_lights_support: 0
     property var handtest_toggle: 0
+    property var lights_toggle: 0
     property var beep_reason: 0
     property var fault_code: 0
 
@@ -72,7 +76,12 @@ Item {
             var dv = new DataView(buffer)
             var ind = 0
             dv.setUint8(ind, 101); ind += 1
-            dv.setUint8(ind, 0x1); ind += 1
+	    if(info_received == 0){
+	        dv.setUint8(ind, 0x0); ind += 1		// FLOAT_COMMAND_INFO
+	    }
+	    else {
+	        dv.setUint8(ind, 0x1); ind += 1         // FLOAT_COMMAND_GET_RTDATA
+            }
             mCommands.sendCustomAppData(buffer)
             mCommands.getValues()
             
@@ -166,6 +175,17 @@ Item {
 
             if (magicnr != 101) {
                 return;
+            }
+            if (msgtype == 0) {
+                ind += 2;
+                var lcm = dv.getUint8(ind);
+                if (lcm >= 2) {
+                    has_lights_support = 1
+		    if((lcm & 2) > 0) {
+		        has_lcm = 1
+		    }
+                }
+		info_received = 1
             }
             if (msgtype == 1) {
                 var pid_value = dv.getFloat32(ind); ind += 4;
@@ -676,7 +696,7 @@ Item {
 					}
 					Text {
 						id: versionText
-						text: "{{VERSION}}"
+						text: "{{VERSION}}beta"
 						color: Utility.getAppHexColor("lightText")
 						font.pointSize: 10
 						font.weight: Font.Black
@@ -782,6 +802,24 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 2
                     color: Utility.getAppHexColor("lightText")
+                }
+                Button {
+                        id: lightsButton
+			visible: has_lights_support == 1
+                        text: "TOGGLE HEADLIGHTS"
+                        Layout.fillWidth: true
+                        font.pointSize: 16
+                        onClicked: {
+                            lights_toggle = 1 - lights_toggle
+                            var buffer = new ArrayBuffer(7)
+                            var dv = new DataView(buffer)
+                            dv.setUint8(0, 101)  // Float Package
+                            dv.setUint8(1, 26)   // Command ID: LCM_CTRL
+                            dv.setUint8(2, lights_toggle * 255)	          // brightness
+                            dv.setUint8(3, lights_toggle * 50)	          // idle brightness
+                            dv.setUint8(4, (1 - lights_toggle) * 30 + 20) // status brightness
+                            mCommands.sendCustomAppData(buffer)
+                        }
                 }
 
                 // Handtest Controls
