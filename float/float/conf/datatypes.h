@@ -93,6 +93,13 @@ typedef struct {
 	uint16_t inputtilt_smoothing_factor;
 	bool inputtilt_invert_throttle;
 	float inputtilt_deadband;
+	bool inputtilt_kp1_is_scaled;
+	float inputtilt_brake1_scale_threshold;
+	bool inputtilt_kp2_is_scaled;
+	float inputtilt_brake2_scale_threshold;
+	float remote_booster_kp_accel;
+	float remote_booster_kp_brake;
+	float remote_booster_ramp_factor;
 	float remote_throttle_current_max;
 	float remote_throttle_grace_period;
 	float noseangling_speed;

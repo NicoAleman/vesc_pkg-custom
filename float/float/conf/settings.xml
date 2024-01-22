@@ -1221,6 +1221,141 @@ p, li { white-space: pre-wrap; }
             <suffix> %</suffix>
             <vTx>7</vTx>
         </inputtilt_deadband>
+        <inputtilt_brake1_scale_threshold>
+            <longName>Brake Scale Threshold (Angle P)</longName>
+            <type>1</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Percentage of throttle (nose up) at which brakes will be completely disabled. Brakes are scaled down as you approach this percentage.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_INPUTTILT_BRAKE1_SCALE_THRESHOLD</cDefine>
+            <editorDecimalsDouble>0</editorDecimalsDouble>
+            <editorScale>100</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxDouble>10</maxDouble>
+            <minDouble>0</minDouble>
+            <showDisplay>0</showDisplay>
+            <stepDouble>10</stepDouble>
+            <valDouble>1</valDouble>
+            <vTxDoubleScale>10000</vTxDoubleScale>
+            <suffix> %</suffix>
+            <vTx>7</vTx>
+        </inputtilt_brake1_scale_threshold>
+        <inputtilt_brake2_scale_threshold>
+            <longName>Brake Scale Threshold (Rate P)</longName>
+            <type>1</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Percentage of throttle (nose up) at which brakes will be completely disabled. Brakes are scaled down as you approach this percentage.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_INPUTTILT_BRAKE2_SCALE_THRESHOLD</cDefine>
+            <editorDecimalsDouble>0</editorDecimalsDouble>
+            <editorScale>100</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxDouble>10</maxDouble>
+            <minDouble>0</minDouble>
+            <showDisplay>0</showDisplay>
+            <stepDouble>10</stepDouble>
+            <valDouble>0.5</valDouble>
+            <vTxDoubleScale>10000</vTxDoubleScale>
+            <suffix> %</suffix>
+            <vTx>7</vTx>
+        </inputtilt_brake2_scale_threshold>
+        <inputtilt_kp1_is_scaled>
+            <longName>Reduce Brakes (Angle P)</longName>
+            <type>5</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Reduce Angle P as Remote Tilt Input approaches Brake Scale Threshold (for nose up only)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_INPUTTILT_KP1_IS_SCALED</cDefine>
+            <valInt>0</valInt>
+        </inputtilt_kp1_is_scaled>
+        <inputtilt_kp2_is_scaled>
+            <longName>Reduce Brakes (Rate P)</longName>
+            <type>5</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Reduce Rate P as Remote Tilt Input approaches Brake Scale Threshold (for nose up only)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_INPUTTILT_KP2_IS_SCALED</cDefine>
+            <valInt>0</valInt>
+        </inputtilt_kp2_is_scaled>
+        <remote_booster_kp_accel>
+            <longName>Max Angle P (Accel)</longName>
+            <type>1</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Scale &amp;quot;True Pitch&amp;quot; Angle P for acceleration as you throttle (nose up), reaching Max Angle P at 100% throttle.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_REMOTE_BOOSTER_KP_ACCEL</cDefine>
+            <editorDecimalsDouble>1</editorDecimalsDouble>
+            <editorScale>1</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxDouble>100</maxDouble>
+            <minDouble>0</minDouble>
+            <showDisplay>0</showDisplay>
+            <stepDouble>0.5</stepDouble>
+            <valDouble>0</valDouble>
+            <vTxDoubleScale>10</vTxDoubleScale>
+            <suffix></suffix>
+            <vTx>7</vTx>
+        </remote_booster_kp_accel>
+        <remote_booster_kp_brake>
+            <longName>Max Angle P (Brake)</longName>
+            <type>1</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Scale &amp;quot;True Pitch&amp;quot; Angle P for braking as you throttle (nose up), reaching Max Angle P at 100% throttle.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_REMOTE_BOOSTER_KP_BRAKE</cDefine>
+            <editorDecimalsDouble>1</editorDecimalsDouble>
+            <editorScale>1</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxDouble>100</maxDouble>
+            <minDouble>0</minDouble>
+            <showDisplay>0</showDisplay>
+            <stepDouble>0.5</stepDouble>
+            <valDouble>0</valDouble>
+            <vTxDoubleScale>10</vTxDoubleScale>
+            <suffix></suffix>
+            <vTx>7</vTx>
+        </remote_booster_kp_brake>
+        <remote_booster_ramp_factor>
+            <longName>Ramp Factor</longName>
+            <type>1</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Lower = More Gradual&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Default = 0.01 (100ms)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_REMOTE_BOOSTER_RAMP_FACTOR</cDefine>
+            <editorDecimalsDouble>3</editorDecimalsDouble>
+            <editorScale>1</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxDouble>0.01</maxDouble>
+            <minDouble>0</minDouble>
+            <showDisplay>0</showDisplay>
+            <stepDouble>0.001</stepDouble>
+            <valDouble>0.01</valDouble>
+            <vTxDoubleScale>10</vTxDoubleScale>
+            <suffix></suffix>
+            <vTx>7</vTx>
+        </remote_booster_ramp_factor>
         <remote_throttle_current_max>
             <longName>Throttle Current Maximum</longName>
             <type>1</type>
@@ -2723,6 +2858,13 @@ p, li { white-space: pre-wrap; }
         <ser>inputtilt_smoothing_factor</ser>
         <ser>inputtilt_invert_throttle</ser>
         <ser>inputtilt_deadband</ser>
+        <ser>inputtilt_brake1_scale_threshold</ser>
+        <ser>inputtilt_brake2_scale_threshold</ser>
+        <ser>inputtilt_kp1_is_scaled</ser>
+        <ser>inputtilt_kp2_is_scaled</ser>
+        <ser>remote_booster_kp_accel</ser>
+        <ser>remote_booster_kp_brake</ser>
+        <ser>remote_booster_ramp_factor</ser>
         <ser>remote_throttle_current_max</ser>
         <ser>remote_throttle_grace_period</ser>
         <ser>startup_pitch_tolerance</ser>
@@ -2950,6 +3092,15 @@ p, li { white-space: pre-wrap; }
                     <param>inputtilt_smoothing_factor</param>
                     <param>inputtilt_invert_throttle</param>
                     <param>inputtilt_deadband</param>
+                    <param>::sep::Remote Brake Scaling</param>
+                    <param>inputtilt_kp1_is_scaled</param>
+                    <param>inputtilt_brake1_scale_threshold</param>
+                    <param>inputtilt_kp2_is_scaled</param>
+                    <param>inputtilt_brake2_scale_threshold</param>
+                    <param>::sep::Remote Booster</param>
+                    <param>remote_booster_kp_accel</param>
+                    <param>remote_booster_kp_brake</param>
+                    <param>remote_booster_ramp_factor</param>
                     <param>::sep::Remote Throttle</param>
                     <param>remote_throttle_current_max</param>
                     <param>remote_throttle_grace_period</param>

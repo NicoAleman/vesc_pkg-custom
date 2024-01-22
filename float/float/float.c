@@ -1977,6 +1977,17 @@ static void float_thd(void *arg) {
 				apply_turntilt(d);
 			}
 
+			float kp_brake = d->float_conf.kp_brake;
+			float kp2_brake = d->float_conf.kp2_brake;
+			if ((d->throttle_val * d->erpm) > 0) { // Remote Tilt Nose Up
+				if (d->float_conf.inputtilt_kp1_is_scaled) {
+					kp_brake *= (1 - fminf(1,(fabsf(d->throttle_val) / d->float_conf.inputtilt_brake1_scale_threshold)));
+				}
+				if (d->float_conf.inputtilt_kp2_is_scaled) {
+					kp2_brake *= (1 - fminf(1,(fabsf(d->throttle_val) / d->float_conf.inputtilt_brake2_scale_threshold)));
+				}
+			}
+
 			// Prepare Brake Scaling (ramp scale values as needed for smooth transitions)
 			if (fabsf(d->erpm) < 500) { // Nearly standstill
 				d->kp_brake_scale = 0.01 + 0.99 * d->kp_brake_scale; // All scaling should roll back to 1.0x when near a stop for a smooth stand-still and back-forth transition
@@ -1985,16 +1996,16 @@ static void float_thd(void *arg) {
 				d->kp2_accel_scale = 0.01 + 0.99 * d->kp2_accel_scale;
 
 			} else if (d->erpm > 0){ // Moving forwards
-				d->kp_brake_scale = 0.01 * d->float_conf.kp_brake + 0.99 * d->kp_brake_scale; // Once rolling forward, brakes should transition to scaled values
-				d->kp2_brake_scale = 0.01 * d->float_conf.kp2_brake + 0.99 * d->kp2_brake_scale;
+				d->kp_brake_scale = 0.01 * kp_brake + 0.99 * d->kp_brake_scale; // Once rolling forward, brakes should transition to scaled values
+				d->kp2_brake_scale = 0.01 * kp2_brake + 0.99 * d->kp2_brake_scale;
 				d->kp_accel_scale = 0.01 + 0.99 * d->kp_accel_scale;
 				d->kp2_accel_scale = 0.01 + 0.99 * d->kp2_accel_scale;
 
 			} else { // Moving backwards
 				d->kp_brake_scale = 0.01 + 0.99 * d->kp_brake_scale; // Once rolling backward, the NEW brakes (we will use kp_accel) should transition to scaled values
 				d->kp2_brake_scale = 0.01 + 0.99 * d->kp2_brake_scale;
-				d->kp_accel_scale = 0.01 * d->float_conf.kp_brake + 0.99 * d->kp_accel_scale;
-				d->kp2_accel_scale = 0.01 * d->float_conf.kp2_brake + 0.99 * d->kp2_accel_scale;
+				d->kp_accel_scale = 0.01 * kp_brake + 0.99 * d->kp_accel_scale;
+				d->kp2_accel_scale = 0.01 * kp2_brake + 0.99 * d->kp2_accel_scale;
 			}
 
 			// Do PID maths
@@ -2087,8 +2098,23 @@ static void float_thd(void *arg) {
 					booster_current = 0;
 				}
 
+				float remote_booster_kp;
+				if ((d->throttle_val * d->erpm) > 0) { // Remote Tilt Nose Up					
+					if (SIGN(true_proportional) != SIGN(d->erpm)) { // Tail Down
+						remote_booster_kp = fabsf(d->throttle_val) * d->float_conf.remote_booster_kp_brake;
+					}
+					else {
+						remote_booster_kp = fabsf(d->throttle_val) * d->float_conf.remote_booster_kp_accel;
+					}
+				}
+				else {
+					remote_booster_kp = 0;
+				}
+
+				booster_current += remote_booster_kp * true_proportional;
+
 				// No harsh changes in booster current (effective delay <= 100ms)
-				d->applied_booster_current = 0.01 * booster_current + 0.99 * d->applied_booster_current;
+				d->applied_booster_current = d->float_conf.remote_booster_ramp_factor * booster_current + (1 - d->float_conf.remote_booster_ramp_factor) * d->applied_booster_current;
 				d->pid_mod += d->applied_booster_current;
 
 				if (d->softstart_pid_limit < d->mc_current_max) {
