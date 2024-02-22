@@ -37,9 +37,6 @@
 // Acceleration average
 #define ACCEL_ARRAY_SIZE 40
 
-// ADC Hand-Press Scale Factor (Accomdate lighter presses than what's needed for engagement by foot)
-#define ADC_HAND_PRESS_SCALE 0.8
-
 HEADER
 
 // Return the sign of the argument. -1.0 if negative, 1.0 if zero or positive.
@@ -289,7 +286,6 @@ static void brake(data *d);
 static void set_current(data *d, float current);
 static void flywheel_stop(data *d);
 static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len);
-static bool flywheel_konami_check(data *d, int input);
 
 /**
  * BUZZER / BEEPER on Servo Pin
@@ -859,7 +855,8 @@ static bool check_faults(data *d){
 		}
 
 		if (d->is_flywheel_mode && d->flywheel_allow_abort) {
-			if (d->adc1 > (d->flywheel_fault_adc1 * ADC_HAND_PRESS_SCALE) && d->adc2 > (d->flywheel_fault_adc2 * ADC_HAND_PRESS_SCALE)) {
+			FootpadSensorState state = footpad_sensor_state_evaluate(&d->footpad_sensor, &d->float_conf, true);
+			if (state == FS_BOTH) {
 				d->state = FAULT_SWITCH_HALF;
 				d->flywheel_abort = true;
 				return true;
@@ -3284,10 +3281,6 @@ static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len)
 		}
 		d->flywheel_abort = false;
 
-		// Temp store ADC Fault Thresholds
-		d->flywheel_fault_adc1 = d->float_conf.fault_adc1;
-		d->flywheel_fault_adc2 = d->float_conf.fault_adc2;
-
 		// Tighter startup/fault tolerances
 		d->startup_pitch_tolerance = 0.2;
 		d->float_conf.startup_pitch_tolerance = 0.2;
@@ -3375,38 +3368,6 @@ void flywheel_stop(data *d)
 	VESC_IF->set_cfg_float(CFG_PARAM_l_max_erpm + 100, 30000);
 	read_cfg_from_eeprom(d);
 	configure(d);
-}
-
-bool flywheel_konami_check(data *d, int input) 
-{
-	if((!d->is_flywheel_mode) && (d->true_pitch_angle > 75) && (d->true_pitch_angle < 105) && // Check that Flywheel is inactive and board is within reasonable pitch range
-	   ((d->flywheel_konami_state == 0) || (fabsf(d->true_pitch_angle - d->flywheel_konami_pitch) < 2.5)))
-	{
-		switch(input) {
-		case 1: // ADC 1 Pressed
-			if ((d->adc1 > d->float_conf.fault_adc1 * ADC_HAND_PRESS_SCALE) && (d->adc2 < d->float_conf.fault_adc2 * ADC_HAND_PRESS_SCALE)) {
-				return true;
-			}
-			break;
-		case 2: // ADC 2 Pressed
-			if ((d->adc1 < d->float_conf.fault_adc1 * ADC_HAND_PRESS_SCALE) && (d->adc2 > d->float_conf.fault_adc2 * ADC_HAND_PRESS_SCALE)) {
-				return true;
-			}
-			break;
-		case 3: // ADC 1 + 2 Pressed
-			if ((d->adc1 > d->float_conf.fault_adc1 * ADC_HAND_PRESS_SCALE) && (d->adc2 > d->float_conf.fault_adc2 * ADC_HAND_PRESS_SCALE)) {
-				return true;
-			}
-			break;
-		default: // No ADC Pressed
-			if ((d->adc1 < d->float_conf.fault_adc1 * ADC_HAND_PRESS_SCALE) && (d->adc2 < d->float_conf.fault_adc2 * ADC_HAND_PRESS_SCALE)) {
-				return true;
-			}
-			break;
-		}
-	}
-	
-	return false; // Reached if any conditions along the way are failed
 }
 
 // Handler for incoming app commands
