@@ -124,7 +124,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-style:italic;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;*Note: If your set Mahony KP in &amp;quot;App CFG -&amp;gt; IMU&amp;quot; does not match this value, this value will take priority and writing the Float Config will overwrite this value into your App CFG.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>APPCONF_FLOAT_MAHONY_KP</cDefine>
-            <editorDecimalsDouble>1</editorDecimalsDouble>
+            <editorDecimalsDouble>2</editorDecimalsDouble>
             <editorScale>1</editorScale>
             <editAsPercentage>0</editAsPercentage>
             <maxDouble>3</maxDouble>
@@ -853,7 +853,7 @@ p, li { white-space: pre-wrap; }
             <editorScale>1</editorScale>
             <editAsPercentage>0</editAsPercentage>
             <maxDouble>5</maxDouble>
-            <minDouble>0</minDouble>
+            <minDouble>-5</minDouble>
             <showDisplay>0</showDisplay>
             <stepDouble>0.05</stepDouble>
             <valDouble>0.1</valDouble>
@@ -2337,12 +2337,14 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;LED Strip Type&lt;br /&gt;&lt;br /&gt;None: disable led output&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;RGB: for ws2811 &amp;amp; ws2812b and anything else that shares that 3 channel protocol&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;RGBW: for sk2812 &amp;amp; ws2815 and anything else that shares that 4 channel protocol&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;RGBW: for sk2812 &amp;amp; ws2815 and anything else that shares that 4 channel protocol&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;External Module: for external lighting solutions such as the Floatwheel LCM&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>APPCONF_FLOAT_LED_TYPE</cDefine>
             <valInt>0</valInt>
             <enumNames>None</enumNames>
             <enumNames>RGB</enumNames>
             <enumNames>RGBW</enumNames>
+            <enumNames>External Module</enumNames>
         </led_type>
         <led_status_count>
             <longName>Status LED Strip Length</longName>
@@ -2405,7 +2407,7 @@ p, li { white-space: pre-wrap; }
             <vTx>1</vTx>
         </led_rear_count>
         <led_brightness>
-            <longName>Forward/Rear LED Brightness</longName>
+            <longName>Headlight Brightness</longName>
             <type>2</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2425,7 +2427,7 @@ p, li { white-space: pre-wrap; }
             <vTx>1</vTx>
         </led_brightness>
         <led_brightness_idle>
-            <longName>Forward/Rear LED Brightness when Idle</longName>
+            <longName>Headlight Brightness when Idle</longName>
             <type>2</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2445,7 +2447,7 @@ p, li { white-space: pre-wrap; }
             <vTx>1</vTx>
         </led_brightness_idle>
         <led_mode>
-            <longName>Forward/Rear LED Mode</longName>
+            <longName>Headlights LED Mode</longName>
             <type>4</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2456,7 +2458,7 @@ p, li { white-space: pre-wrap; }
             <cDefine>APPCONF_FLOAT_LED_MODE</cDefine>
             <valInt>0</valInt>
             <enumNames>White/Red</enumNames>
-            <enumNames>White/Red with Idle Battery Meter</enumNames>
+            <enumNames>Battery Meter</enumNames>
             <enumNames>Cyan/Magenta</enumNames>
             <enumNames>Blue/Green</enumNames>
             <enumNames>Yellow/Green</enumNames>
@@ -2464,6 +2466,8 @@ p, li { white-space: pre-wrap; }
             <enumNames>Strobe</enumNames>
             <enumNames>Rave</enumNames>
             <enumNames>Mullet</enumNames>
+            <enumNames>Knight Rider</enumNames>
+            <enumNames>Felony</enumNames>
         </led_mode>
         <led_mode_idle>
             <longName>Forward/Rear LED Mode when Idle</longName>
@@ -2477,7 +2481,7 @@ p, li { white-space: pre-wrap; }
             <cDefine>APPCONF_FLOAT_LED_MODE_IDLE</cDefine>
             <valInt>1</valInt>
             <enumNames>White/Red</enumNames>
-            <enumNames>White/Red with Idle Battery Meter</enumNames>
+            <enumNames>Battery Meter</enumNames>
             <enumNames>Cyan/Magenta</enumNames>
             <enumNames>Blue/Green</enumNames>
             <enumNames>Yellow/Green</enumNames>
@@ -2485,6 +2489,8 @@ p, li { white-space: pre-wrap; }
             <enumNames>Strobe</enumNames>
             <enumNames>Rave</enumNames>
             <enumNames>Mullet</enumNames>
+            <enumNames>Knight Rider</enumNames>
+            <enumNames>Felony</enumNames>
         </led_mode_idle>
         <led_status_brightness>
             <longName>Status LED Brightness</longName>
@@ -2619,18 +2625,6 @@ p, li { white-space: pre-wrap; }
             <cDefine>APPCONF_FLOAT_IS_BEEPER_ENABLED</cDefine>
             <valInt>0</valInt>
         </is_beeper_enabled>
-        <has_lcm>
-            <longName>Enable LCM Control</longName>
-            <type>5</type>
-            <transmittable>1</transmittable>
-            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Allow controlling external light control modules (Floatwheel) via AppUI and external Apps&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
-            <cDefine>HAS_LCM</cDefine>
-            <valInt>0</valInt>
-        </has_lcm>
         <float_disable>
             <longName>Disable Float Package</longName>
             <type>5</type>
@@ -2787,7 +2781,6 @@ p, li { white-space: pre-wrap; }
         <ser>limit_current_cont</ser>
         <ser>dark_pitch_offset</ser>
         <ser>is_beeper_enabled</ser>
-        <ser>has_lcm</ser>
         <ser>float_disable</ser>
         <ser>float_version</ser>
     </SerOrder>
@@ -2958,7 +2951,7 @@ p, li { white-space: pre-wrap; }
             <subgroup>
                 <subgroupName>LEDs</subgroupName>
                 <subgroupParams>
-                    <param>::sep::Forward &amp; Rear</param>
+                    <param>::sep::Headlights</param>
                     <param>led_brightness</param>
                     <param>led_brightness_idle</param>
                     <param>led_mode</param>
@@ -2991,7 +2984,6 @@ p, li { white-space: pre-wrap; }
                     <param>::sep::Miscellaneous</param>
                     <param>dark_pitch_offset</param>
                     <param>is_beeper_enabled</param>
-                    <param>has_lcm</param>
                     <param>::sep::Current Limiting</param>
                     <param>limit_current_accel</param>
                     <param>limit_current_brake</param>

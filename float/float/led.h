@@ -3,10 +3,15 @@
 
 #include "conf/datatypes.h"
 
+typedef enum {
+	LED_Type_None,
+	LED_Type_RGB,
+	LED_Type_RGBW,
+	LED_Type_External_Module,
+} LEDType;
+
 typedef struct {
     float led_last_updated;
-    uint32_t led_previous_forward;
-    uint32_t led_previous_rear;
     uint8_t led_previous_brightness;
     bool led_latching_direction;
     uint8_t led_type;

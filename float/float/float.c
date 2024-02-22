@@ -64,6 +64,7 @@ typedef enum {
 	FAULT_STARTUP = 11,
 	FAULT_REVERSE = 12,
 	FAULT_QUICKSTOP = 13,
+	CHARGING = 14,
 	DISABLED = 15
 } FloatState;
 
@@ -110,6 +111,14 @@ typedef enum {
 static const FootpadSensorState flywheel_konami_sequence[] = { FS_LEFT, FS_NONE, FS_RIGHT, FS_NONE, FS_LEFT, FS_NONE, FS_RIGHT };
 static const FootpadSensorState battery_konami_sequence[] = { FS_LEFT, FS_NONE, FS_LEFT, FS_NONE, FS_LEFT, FS_NONE, FS_LEFT };
 
+#define MAXLCMNAMELENGTH 20
+#define MAXLCMPAYLOADLENGTH 64
+
+typedef struct {
+    uint8_t data[MAXLCMPAYLOADLENGTH];
+    uint8_t size;
+} lcmPayload;
+
 // This is all persistent state of the application, which will be allocated in init. It
 // is put here because variables can only be read-only when this program is loaded
 // in flash without virtual memory in RAM (as all RAM already is dedicated to the
@@ -132,14 +141,15 @@ typedef struct {
 	bool beeper_enabled;
 
 	// LEDs
-	LightingType light_implementation;
 	LEDData led_data;
 
 	// External Lights (LCM)
-	uint8_t lcm_lightbar_mode;
-	uint8_t lcm_board_off;
-	uint8_t lcm_set;
+	char lcm_name[MAXLCMNAMELENGTH];
+	lcmPayload lcm_payload;
 
+	float charge_voltage, charge_current;
+	float charge_timer;
+	
 	// Config values
 	float loop_time_seconds;
 	unsigned int start_counter_clicks, start_counter_clicks_max;
@@ -147,7 +157,7 @@ typedef struct {
 	float startup_step_size;
 	float tiltback_duty_step_size, tiltback_hv_step_size, tiltback_lv_step_size, tiltback_return_step_size;
 	float torquetilt_on_step_size, torquetilt_off_step_size, turntilt_step_size;
-	float tiltback_variable, tiltback_variable_max_erpm, noseangling_step_size, inputtilt_ramped_step_size, inputtilt_step_size, inputtilt_disconnected_step_size;
+	float tiltback_variable, tiltback_variable_max_erpm, noseangling_step_size, inputtilt_ramped_step_size, inputtilt_step_size;
 	float mc_max_temp_fet, mc_max_temp_mot;
 	float mc_current_max, mc_current_min, current_max, current_min, max_continuous_current;
 	float surge_angle, surge_angle2, surge_angle3, surge_adder;
@@ -167,7 +177,6 @@ typedef struct {
 	float erpm, abs_erpm, avg_erpm;
 	float motor_current;
 	float throttle_val;
-	bool remote_connected;
 	float max_duty_with_margin;
 	FootpadSensor footpad_sensor;
 
@@ -409,7 +418,6 @@ static void configure(data *d) {
 	d->turntilt_step_size = d->float_conf.turntilt_speed / d->float_conf.hertz;
 	d->noseangling_step_size = d->float_conf.noseangling_speed / d->float_conf.hertz;
 	d->inputtilt_step_size = d->float_conf.inputtilt_speed / d->float_conf.hertz;
-	d->inputtilt_disconnected_step_size = (float)5 / d->float_conf.hertz;
 
 	d->surge_angle = d->float_conf.surge_angle;
 	d->surge_angle2 = d->float_conf.surge_angle * 2;
@@ -511,10 +519,18 @@ static void configure(data *d) {
 
 	// Variable nose angle adjustment / tiltback (setting is per 1000erpm, convert to per erpm)
 	d->tiltback_variable = d->float_conf.tiltback_variable / 1000;
-	if (d->tiltback_variable > 0) {
-		d->tiltback_variable_max_erpm = fabsf(d->float_conf.tiltback_variable_max / d->tiltback_variable);
-	} else {
+	if ((d->float_conf.tiltback_variable < 0) || (d->float_conf.tiltback_variable_max < 0)) {
+		// we now allow negative rate or negative max (or both), it all is treated as negative tilt
+		// runtime logic expects positive rate but negative max for negative tilt:
+		if (d->tiltback_variable < 0)
+			d->tiltback_variable *= -1;
+		if (d->float_conf.tiltback_variable_max > 0)
+			d->float_conf.tiltback_variable_max *= -1;
+	}
+	if (d->tiltback_variable == 0) {
 		d->tiltback_variable_max_erpm = 100000;
+	} else {
+		d->tiltback_variable_max_erpm = fabsf(d->float_conf.tiltback_variable_max / d->tiltback_variable);
 	}
 
 	// Reset loop time variables
@@ -536,12 +552,9 @@ static void configure(data *d) {
 	konami_init(&d->flywheel_konami, flywheel_konami_sequence, sizeof(flywheel_konami_sequence));
 	konami_init(&d->battery_konami, battery_konami_sequence, sizeof(battery_konami_sequence));
 
-	d->light_implementation = (d->float_conf.led_type  > 0) ? INTERNAL : NO_LIGHTS;
-
-	// External LCM support (Floatwheel)
-	d->lcm_lightbar_mode = 0;
-	d->lcm_board_off = 0;
-	d->lcm_set = 0;
+	// External light module support
+	d->lcm_name[0] = '\0';
+	d->lcm_payload.size = 0;
 }
 
 static void reset_vars(data *d) {
@@ -565,7 +578,6 @@ static void reset_vars(data *d) {
 	d->torqueresponse_interpolated = 0;
 	d->turntilt_target = 0;
 	d->turntilt_interpolated = 0;
-	d->remote_connected = false;
 	d->setpointAdjustmentType = CENTERING;
 	d->state = RUNNING;
 	d->current_time = 0;
@@ -1151,7 +1163,6 @@ static void apply_noseangling(data *d){
 
 static void apply_inputtilt(data *d){ // Input Tiltback
 	float input_tiltback_target;
-	float tiltback_step_size;
 	 
 	// Scale by Max Angle
 	input_tiltback_target = d->throttle_val * d->float_conf.inputtilt_angle_limit;
@@ -1183,8 +1194,6 @@ static void apply_inputtilt(data *d){ // Input Tiltback
 
 	float input_tiltback_target_diff = input_tiltback_target - d->inputtilt_interpolated;
 
-	tiltback_step_size = d->remote_connected ? d->inputtilt_step_size : d->inputtilt_disconnected_step_size;
-
 	if (d->float_conf.inputtilt_smoothing_factor > 0) { // Smoothen changes in tilt angle by ramping the step size
 		float smoothing_factor = 0.02;
 		for (int i = 1; i < d->float_conf.inputtilt_smoothing_factor; i++) {
@@ -1193,22 +1202,22 @@ static void apply_inputtilt(data *d){ // Input Tiltback
 
 		float smooth_center_window = 1.5 + (0.5 * d->float_conf.inputtilt_smoothing_factor); // Sets the angle away from Target that step size begins ramping down
 		if (fabsf(input_tiltback_target_diff) < smooth_center_window) { // Within X degrees of Target Angle, start ramping down step size
-			d->inputtilt_ramped_step_size = (smoothing_factor * tiltback_step_size * (input_tiltback_target_diff / 2)) + ((1 - smoothing_factor) * d->inputtilt_ramped_step_size); // Target step size is reduced the closer to center you are (needed for smoothly transitioning away from center)
-			float centering_step_size = fminf(fabsf(d->inputtilt_ramped_step_size), fabsf(input_tiltback_target_diff / 2) * tiltback_step_size) * SIGN(input_tiltback_target_diff); // Linearly ramped down step size is provided as minimum to prevent overshoot
+			d->inputtilt_ramped_step_size = (smoothing_factor * d->inputtilt_step_size * (input_tiltback_target_diff / 2)) + ((1 - smoothing_factor) * d->inputtilt_ramped_step_size); // Target step size is reduced the closer to center you are (needed for smoothly transitioning away from center)
+			float centering_step_size = fminf(fabsf(d->inputtilt_ramped_step_size), fabsf(input_tiltback_target_diff / 2) * d->inputtilt_step_size) * SIGN(input_tiltback_target_diff); // Linearly ramped down step size is provided as minimum to prevent overshoot
 			if (fabsf(input_tiltback_target_diff) < fabsf(centering_step_size)) {
 				d->inputtilt_interpolated = input_tiltback_target;
 			} else {
 				d->inputtilt_interpolated += centering_step_size;
 			}
 		} else { // Ramp up step size until the configured tilt speed is reached
-			d->inputtilt_ramped_step_size = (smoothing_factor * tiltback_step_size * SIGN(input_tiltback_target_diff)) + ((1 - smoothing_factor) * d->inputtilt_ramped_step_size);
+			d->inputtilt_ramped_step_size = (smoothing_factor * d->inputtilt_step_size * SIGN(input_tiltback_target_diff)) + ((1 - smoothing_factor) * d->inputtilt_ramped_step_size);
 			d->inputtilt_interpolated += d->inputtilt_ramped_step_size;
 		}
 	} else { // Constant step size; no smoothing
-		if (fabsf(input_tiltback_target_diff) < tiltback_step_size){
+		if (fabsf(input_tiltback_target_diff) < d->inputtilt_step_size){
 		d->inputtilt_interpolated = input_tiltback_target;
 	} else {
-		d->inputtilt_interpolated += tiltback_step_size * SIGN(input_tiltback_target_diff);
+		d->inputtilt_interpolated += d->inputtilt_step_size * SIGN(input_tiltback_target_diff);
 	}
 	}
 
@@ -1817,24 +1826,24 @@ static void float_thd(void *arg) {
 		d->duty_smooth = d->duty_smooth * 0.9 + d->duty_cycle * 0.1;
 
 		// UART/PPM Remote Throttle ///////////////////////
+		bool remote_connected = false;
 		float servo_val = 0;
 
 		switch (d->float_conf.inputtilt_remote_type) {
 		case (INPUTTILT_PPM):
 			servo_val = VESC_IF->get_ppm();
-			d->remote_connected = VESC_IF->get_ppm_age() < 1;
+			remote_connected = VESC_IF->get_ppm_age() < 1;
 			break;
 		case (INPUTTILT_UART): ; // Don't delete ";", required to avoid compiler error with first line variable init
 			remote_state remote = VESC_IF->get_remote_state();
 			servo_val = remote.js_y;
-			d->remote_connected = remote.age_s < 1;
+			remote_connected = remote.age_s < 1;
 			break;
 		case (INPUTTILT_NONE):
-			d->remote_connected = false;
 			break;
 		}
 		
-		if (!d->remote_connected) {
+		if (!remote_connected) {
 			servo_val = 0;
 		} else {
 			// Apply Deadband
@@ -2280,6 +2289,17 @@ static void float_thd(void *arg) {
 				do_rc_move(d);
 			}
 			break;
+		case (CHARGING):
+			if ((d->current_time - d->charge_timer) > 10) {
+				// 10 seconds of no chargestate calls? Revert back to normal
+				if (d->float_conf.float_disable) {
+					d->state = DISABLED;
+				}
+				else {
+					d->state = STARTUP;
+				}
+			}
+			break;
 		case (DISABLED):;
 			// no set_current, no brake_current
 		default:;
@@ -2420,9 +2440,13 @@ enum {
 	FLOAT_COMMAND_TUNE_TILT = 14,
 	FLOAT_COMMAND_FLYWHEEL = 22,
 	FLOAT_COMMAND_HAPTIC = 23,
-	FLOAT_COMMAND_LCM_POLL = 24,   // this should only be called by LCM
-	FLOAT_COMMAND_LIGHT_INFO = 25,   // to be called by apps to check if a lighting solution is present / get info
-	FLOAT_COMMAND_LIGHT_CTRL = 26    // to be called by apps to change light settings
+	FLOAT_COMMAND_LCM_POLL = 24,   // this should only be called by external light modules
+	FLOAT_COMMAND_LIGHT_INFO = 25, // to be called by apps to check if a lighting module is present / get info
+	FLOAT_COMMAND_LIGHT_CTRL = 26, // to be called by apps to change light settings
+	FLOAT_COMMAND_LCM_INFO = 27,   // to be called by apps to check lighting controller firmware
+	FLOAT_COMMAND_CHARGESTATE = 28,// to be called by ADV LCM while charging
+	FLOAT_COMMAND_GET_BATTERY = 29, 
+	FLOAT_COMMAND_LCM_DEBUG = 99,  // reserved for external debug purposes
 } float_commands;
 
 static void send_realtime_data(data *d){
@@ -2462,8 +2486,14 @@ static void send_realtime_data(data *d){
 	buffer_append_float32_auto(send_buffer, d->true_pitch_angle, &ind);
 	buffer_append_float32_auto(send_buffer, d->atr_filtered_current, &ind);
 	buffer_append_float32_auto(send_buffer, d->float_acc_diff, &ind);
-	buffer_append_float32_auto(send_buffer, d->applied_booster_current, &ind);
-	buffer_append_float32_auto(send_buffer, d->motor_current, &ind);
+	if (d->state == CHARGING) {
+		buffer_append_float32_auto(send_buffer, d->charge_current, &ind);
+		buffer_append_float32_auto(send_buffer, d->charge_voltage, &ind);
+	}
+	else {
+		buffer_append_float32_auto(send_buffer, d->applied_booster_current, &ind);
+		buffer_append_float32_auto(send_buffer, d->motor_current, &ind);
+	}
 	buffer_append_float32_auto(send_buffer, d->throttle_val, &ind);
 
 	if (ind > BUFSIZE) {
@@ -2552,9 +2582,28 @@ static void cmd_send_all_data(data *d, unsigned char mode){
 			send_buffer[ind++] = fmaxf(0, fminf(110, d->battery_level)) * 2;
 			// ind = 55
 		}
+		if (mode >= 4) {
+			// make charge current and voltage available in mode 4
+			buffer_append_float16(send_buffer, d->charge_current, 10, &ind);
+			buffer_append_float16(send_buffer, d->charge_voltage, 10, &ind);
+			// ind = 59
+		}
 	}
 
 	if (ind > SNDBUFSIZE) {
+		VESC_IF->printf("BUFSIZE too small...\n");
+	}
+	VESC_IF->send_app_data(send_buffer, ind);
+}
+
+static void cmd_send_battery(){
+	uint8_t send_buffer[10];
+	int32_t ind = 0;
+	send_buffer[ind++] = 101;//Magic Number
+	send_buffer[ind++] = FLOAT_COMMAND_GET_BATTERY;
+	buffer_append_float32_auto(send_buffer, VESC_IF->mc_get_battery_level(NULL), &ind);
+
+	if (ind > 10) {
 		VESC_IF->printf("BUFSIZE too small...\n");
 	}
 	VESC_IF->send_app_data(send_buffer, ind);
@@ -2575,7 +2624,9 @@ static void cmd_lock(data *d, unsigned char *cfg)
 {
 	if (d->state >= FAULT_ANGLE_PITCH) {
 		d->float_conf.float_disable = cfg[0] ? true : false;
-		d->state = cfg[0] ? DISABLED : STARTUP;
+		if (d->state != CHARGING) {
+			d->state = cfg[0] ? DISABLED : STARTUP;
+		}
 		write_cfg_to_eeprom(d);
 	}
 }
@@ -2710,8 +2761,11 @@ static void cmd_runtime_tune(data *d, unsigned char *cfg, int len)
 			d->float_conf.atr_strength_down = ((float)h2) / 10.0 + 0.5;
 
 		split(cfg[6], &h1, &h2);
-		d->float_conf.atr_torque_offset = h1 + 5;
+		int isnegative = h1;
 		d->float_conf.atr_speed_boost = ((float)(h2 * 5)) / 100;
+		if (isnegative) {
+			d->float_conf.atr_speed_boost *= -1;
+		}
 
 		split(cfg[7], &h1, &h2);
 		d->float_conf.atr_angle_limit = h1 + 5;
@@ -3014,20 +3068,27 @@ static void cmd_haptic_config(data *d, unsigned char *cfg, int len)
 
 /**
  * Command for the LCM to poll data from the float package
+ * Also used to pass LCM name/version info (usually on 1st call)
  */
-static void cmd_lcm_poll(data *d)
+static void cmd_lcm_poll(data *d, unsigned char *cfg, int len)
 {
-	#define POLLBUFSIZE 20
+	// Optional: pass in name and version in a single string
+	if (len > 0) {
+ 		// Read name from LCM
+		for (int i = 0; i < MAXLCMNAMELENGTH; i++) {
+			if (i > len || i > MAXLCMNAMELENGTH - 1 || cfg[i] == '\0') {
+				d->lcm_name[i] = '\0';
+				break;
+			}
+			d->lcm_name[i] = (char)cfg[i];
+		}
+	}
+
+	#define POLLBUFSIZE 20 + MAXLCMPAYLOADLENGTH
 	uint8_t send_buffer[POLLBUFSIZE];
 	int32_t ind = 0;
 	mc_fault_code fault = VESC_IF->mc_get_fault();
 
-	d->light_implementation = EXTERNAL_MODULE;
-
-	if (d->float_conf.has_lcm) {
-		d->lcm_set = 1;
-	}
-	
 	// 11 bytes for base info
 	send_buffer[ind++] = 101;//Magic Number
 	send_buffer[ind++] = FLOAT_COMMAND_LCM_POLL;
@@ -3050,16 +3111,16 @@ static void cmd_lcm_poll(data *d)
 	buffer_append_float16(send_buffer, VESC_IF->mc_get_tot_current_in(), 1e0, &ind);
 	buffer_append_float16(send_buffer, VESC_IF->mc_get_input_voltage_filtered(), 1e1, &ind);
 
-	if (d->lcm_set != 0) {
-		// LCM control info
-		send_buffer[ind++] = d->lcm_set;
-		send_buffer[ind++] = d->float_conf.led_brightness;
-		send_buffer[ind++] = d->float_conf.led_brightness_idle;
-		send_buffer[ind++] = d->float_conf.led_status_brightness;
-		send_buffer[ind++] = d->lcm_lightbar_mode;
-		send_buffer[ind++] = d->float_conf.is_dutybeep_enabled && d->float_conf.tiltback_duty > 0 ? d->float_conf.tiltback_duty * 100 : 100;
-		send_buffer[ind++] = d->lcm_board_off;
+	// LCM control info
+	send_buffer[ind++] = d->float_conf.led_brightness;
+	send_buffer[ind++] = d->float_conf.led_brightness_idle;
+	send_buffer[ind++] = d->float_conf.led_status_brightness;
+
+	// Relay any generic byte pairs set by cmd_light_ctrl
+	for (int i = 0; i < d->lcm_payload.size; i++) {
+		send_buffer[ind++] = d->lcm_payload.data[i];
 	}
+	d->lcm_payload.size = 0; // Message has been processed, clear it
 
 	if (ind > POLLBUFSIZE) {
 		VESC_IF->printf("BUFSIZE too small [%d vs %d]...\n", ind, POLLBUFSIZE);
@@ -3072,17 +3133,85 @@ static void cmd_lcm_poll(data *d)
  */
 static void cmd_light_info(data *d)
 {
-	uint8_t send_buffer[7];
+	uint8_t send_buffer[15];
 	int32_t ind = 0;
 	send_buffer[ind++] = 101;//Magic Number
 	send_buffer[ind++] = FLOAT_COMMAND_LIGHT_INFO;
-	send_buffer[ind++] = d->light_implementation;
+	send_buffer[ind++] = d->float_conf.led_type;
 	send_buffer[ind++] = d->float_conf.led_brightness;
 	send_buffer[ind++] = d->float_conf.led_brightness_idle;
 	send_buffer[ind++] = d->float_conf.led_status_brightness;
-	send_buffer[ind++] = d->light_implementation == EXTERNAL_MODULE ? d->lcm_lightbar_mode : d->float_conf.led_status_mode;
+	send_buffer[ind++] = d->float_conf.led_mode;
+	send_buffer[ind++] = d->float_conf.led_mode_idle;
+	send_buffer[ind++] = d->float_conf.led_status_mode;
+	send_buffer[ind++] = d->float_conf.led_status_count;
+	send_buffer[ind++] = d->float_conf.led_forward_count;
+	send_buffer[ind++] = d->float_conf.led_rear_count;
 
 	VESC_IF->send_app_data(send_buffer, ind);
+}
+
+/**
+ * Command for apps to call to LCM hardware info (if any)
+ */
+static void cmd_lcm_info(data *d)
+{
+	uint8_t send_buffer[18];
+	int32_t ind = 0;
+	send_buffer[ind++] = 101;//Magic Number
+	send_buffer[ind++] = FLOAT_COMMAND_LCM_INFO;
+	// Write light module firmware name into buffer
+	for (int i = 0; i < MAXLCMNAMELENGTH; i++) {
+		send_buffer[ind++] = d->lcm_name[i];
+		if (d->lcm_name[i] == '\0') {
+			break;
+		}
+	}
+
+	VESC_IF->send_app_data(send_buffer, ind);
+}
+
+/**
+ * Command to be called by ADV/LCM to announce that the board is charging
+ */
+static void cmd_chargestate(data *d, unsigned char *cfg, int len)
+{
+	// ignore this while riding!
+	if ((d->state >= RUNNING) && (d->state <= RUNNING_FLYWHEEL))
+		return;
+
+	// Expecting 6 bytes:
+	// -magic nr: must be 151
+	// -charging: 1/0 aka true/false
+	// -voltage: 16bit float divided by 10
+	// -current: 16bit float divided by 10
+	if (len < 6)
+		return;
+
+        uint8_t magicnr = cfg[0];
+	if (magicnr != 151)
+		return;
+
+	bool charging = (cfg[1] > 0);
+	d->charge_timer = d->current_time;
+
+	if (charging) {
+	        int32_t idx = 2;
+		d->charge_voltage = buffer_get_float16(cfg, 10, &idx);
+		d->charge_current = buffer_get_float16(cfg, 10, &idx);
+		d->state = CHARGING;
+	}
+	else if (d->state == CHARGING) {
+		// Once charging is done, go back to normal
+		if (d->float_conf.float_disable) {
+			d->state = DISABLED;
+		}
+		else {
+			d->state = STARTUP;
+		}
+		d->charge_voltage = 0;
+		d->charge_current = 0;
+	}
 }
 
 /**
@@ -3090,27 +3219,25 @@ static void cmd_light_info(data *d)
  */
 static void cmd_light_ctrl(data *d, unsigned char *cfg, int len)
 {
-	if (len < 3 || d->light_implementation == NO_LIGHTS)
+	if (len < 3)
 		return;
 
 	d->float_conf.led_brightness = cfg[0];
 	d->float_conf.led_brightness_idle = cfg[1];
 	d->float_conf.led_status_brightness = cfg[2];
 
-	if (d->light_implementation == EXTERNAL_MODULE) {
-		d->lcm_set = 1;
-		if (len > 3) {
-			d->lcm_lightbar_mode = cfg[3];
-			if (len > 4) {
-				d->lcm_board_off = cfg[4];
+	if (len > 3) {
+		if (d->float_conf.led_type == LED_Type_External_Module) {
+			// Copy rest of payload into data for LCM to pull
+			d->lcm_payload.size = len - 3;
+			for (int i = 0; i < d->lcm_payload.size; i++) {
+				d->lcm_payload.data[i] = cfg[i + 3];
 			}
-		}
-	} else if (d->light_implementation == INTERNAL) {
-		if (len > 3) {
-			d->float_conf.led_status_mode = cfg[3];
-			d->float_conf.led_mode = cfg[4];
+		} else {
 			if (len > 5) {
-				d->float_conf.led_mode_idle = cfg[5];
+				d->float_conf.led_mode = cfg[3];
+				d->float_conf.led_mode_idle = cfg[4];
+				d->float_conf.led_status_mode = cfg[5];
 			}
 		}
 	}
@@ -3180,10 +3307,10 @@ static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len)
 			d->float_conf.kp2 /= 100;
 		}
 
-		d->float_conf.tiltback_duty_angle = 4;
+		d->float_conf.tiltback_duty_angle = 2;
 		d->float_conf.tiltback_duty = 0.1;
-		d->float_conf.tiltback_duty_speed = 20;
-		d->float_conf.tiltback_return_speed = 20;
+		d->float_conf.tiltback_duty_speed = 5;
+		d->float_conf.tiltback_return_speed = 5;
 
 		if (cfg[3] > 0) {
 			d->float_conf.tiltback_duty_angle = cfg[3];
@@ -3194,9 +3321,11 @@ static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len)
 			d->float_conf.tiltback_duty /= 100;
 		}
 		if ((len > 6) && (cfg[6] > 1) && (cfg[6] < 100)) {
-			d->float_conf.tiltback_duty_speed = cfg[6];
-			d->float_conf.tiltback_return_speed = cfg[6];
+			d->float_conf.tiltback_duty_speed = cfg[6] / 2;
+			d->float_conf.tiltback_return_speed = cfg[6] / 2;
 		}
+		d->tiltback_duty_step_size = d->float_conf.tiltback_duty_speed / d->float_conf.hertz;
+		d->tiltback_return_step_size = d->float_conf.tiltback_return_speed / d->float_conf.hertz;
 
 		// Limit speed of wheel and limit amps
 		//backup_erpm = mc_interface_get_configuration()->l_max_erpm;
@@ -3268,7 +3397,7 @@ static void on_command_received(unsigned char *buffer, unsigned int len) {
 			send_buffer[ind++] = 0x0;	// command ID
 			send_buffer[ind++] = (uint8_t) (10 * APPCONF_FLOAT_VERSION);
 			send_buffer[ind++] = 1;     // build number
-			send_buffer[ind++] = d->light_implementation;
+			send_buffer[ind++] = d->float_conf.led_type;
 			VESC_IF->send_app_data(send_buffer, ind);
 			return;
 		}
@@ -3388,7 +3517,7 @@ static void on_command_received(unsigned char *buffer, unsigned int len) {
 			return;
 		}
 		case FLOAT_COMMAND_LCM_POLL: {
-			cmd_lcm_poll(d);
+			cmd_lcm_poll(d, &buffer[2], len-2);
 			return;
 		}
 		case FLOAT_COMMAND_LIGHT_INFO: {
@@ -3396,14 +3525,19 @@ static void on_command_received(unsigned char *buffer, unsigned int len) {
 			return;
 		}
 		case FLOAT_COMMAND_LIGHT_CTRL: {
-			if (len >= 5) {
-				cmd_light_ctrl(d, &buffer[2], len-2);
-			}
-			else {
-				if (!VESC_IF->app_is_output_disabled()) {
-					VESC_IF->printf("Float App: Command length incorrect (%d)\n", len);
-				}
-			}
+			cmd_light_ctrl(d, &buffer[2], len-2);
+			return;
+		}
+		case FLOAT_COMMAND_LCM_INFO: {
+			cmd_lcm_info(d);
+			return;
+		}
+		case FLOAT_COMMAND_CHARGESTATE: {
+			cmd_chargestate(d, &buffer[2], len-2);
+			return;
+		}
+		case FLOAT_COMMAND_GET_BATTERY: {
+			cmd_send_battery();
 			return;
 		}
 		default: {

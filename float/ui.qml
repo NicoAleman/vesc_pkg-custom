@@ -53,7 +53,6 @@ Item {
     property ConfigParams mCustomConf: VescIf.customConfig(0)
     property var quicksaveNames: []
     property var info_received : 0
-    property var has_lcm: 0
     property var has_lights_support: 0
     property var handtest_toggle: 0
     property var lights_toggle: 0
@@ -181,9 +180,6 @@ Item {
                 var lcm = dv.getUint8(ind);
                 if (lcm >= 2) {
                     has_lights_support = 1
-		    if((lcm & 2) > 0) {
-		        has_lcm = 1
-		    }
                 }
 		info_received = 1
             }
@@ -250,6 +246,8 @@ Item {
                     stateString = "STOP_REVERSE"
                 }else if(state == 13){
                     stateString = "STOP_QUICKSTOP"
+                }else if(state == 14){
+                    stateString = "CHARGING"
                 }else{
                     stateString = "UNKNOWN"
                 }
@@ -320,10 +318,18 @@ Item {
 		    beep_reason = new_beep_reason;
 		}
                 if(state == 15){
-                    stateString = "DISABLED"
-                    switchString = "Enable in Float Cfg: Specs"
                     rt_state.text = "Float Package is Disabled\n\n" +
                                     "You can re-enable it in\nFloat Cfg: Specs\n\n"
+                    rt_data.text = "-- n/a --"
+                    setpoints.text = "-- n/a --"
+                    debug.text = "-- n/a --"
+                }
+		else if(state == 14){
+                    rt_state.text =
+                        "State               : " + stateString + "\n\n" +
+                        "Charge Current      : " + applied_booster_current.toFixed(2) + "A\n" +
+                        "Charge Voltage      : " + motor_current.toFixed(2) + "V\n\n"
+			
                     rt_data.text = "-- n/a --"
                     setpoints.text = "-- n/a --"
                     debug.text = "-- n/a --"
@@ -696,7 +702,7 @@ Item {
 					}
 					Text {
 						id: versionText
-						text: "{{VERSION}}beta"
+						text: "{{VERSION}}.0b"
 						color: Utility.getAppHexColor("lightText")
 						font.pointSize: 10
 						font.weight: Font.Black
@@ -814,10 +820,10 @@ Item {
                             var buffer = new ArrayBuffer(7)
                             var dv = new DataView(buffer)
                             dv.setUint8(0, 101)  // Float Package
-                            dv.setUint8(1, 26)   // Command ID: LCM_CTRL
-                            dv.setUint8(2, lights_toggle * 255)	          // brightness
-                            dv.setUint8(3, lights_toggle * 50)	          // idle brightness
-                            dv.setUint8(4, (1 - lights_toggle) * 30 + 20) // status brightness
+                            dv.setUint8(1, 26)   // Command ID: LIGHT_CTRL
+                            dv.setUint8(2, lights_toggle * 100)	          // brightness
+                            dv.setUint8(3, lights_toggle * 25)	          // idle brightness
+                            dv.setUint8(4, (1 - lights_toggle) * 10 + 10) // status brightness
                             mCommands.sendCustomAppData(buffer)
                         }
                 }
