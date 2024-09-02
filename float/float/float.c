@@ -1803,10 +1803,10 @@ static void float_thd(void *arg) {
 			d->true_pitch_angle = d->flywheel_pitch_offset - d->true_pitch_angle;
 			d->pitch_angle = d->true_pitch_angle;
 			d->roll_angle -= d->flywheel_roll_offset;
-			if (d->roll_angle < -200) {
+			if (d->roll_angle < -180) {
 				d->roll_angle += 360;
 			}
-			else if (d->roll_angle > 200) {
+			else if (d->roll_angle > 180) {
 				d->roll_angle -= 360;
 			}
 		}
