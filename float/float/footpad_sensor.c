@@ -7,31 +7,16 @@
 
 // Read ADCs and determine footpad sensor state
 FootpadSensorState footpad_sensor_state_evaluate(const FootpadSensor *fs, const float_config *config, bool handpress) {
-	float adc1_threshold = handpress ? config->fault_adc1 * ADC_HAND_PRESS_SCALE : config->fault_adc1;
-	float adc2_threshold = handpress ? config->fault_adc2 * ADC_HAND_PRESS_SCALE : config->fault_adc2;
+	float adc3_threshold = handpress ? config->fault_adc1 * ADC_HAND_PRESS_SCALE : config->fault_adc1;
 
 	// Calculate sensor state from ADC values
-	if (config->fault_adc1 == 0 && config->fault_adc2 == 0) { // No sensors
+	if (config->fault_adc1 == 3.3) { // Disable Sensor
+		return FS_NONE;
+	} else if (config->fault_adc1 == 0) { // No sensors
 		return FS_BOTH;
-	} else if (config->fault_adc2 == 0) { // Single sensor on ADC1
-		if (fs->adc1 > adc1_threshold) {
+	} else { // Single sensor on ADC1
+		if (fs->adc3 > adc3_threshold) {
 			return FS_BOTH;
-		}
-	} else if (config->fault_adc1 == 0) { // Single sensor on ADC2
-		if (fs->adc2 > adc2_threshold) {
-			return FS_BOTH;
-		}
-	} else { // Double sensor
-		if (fs->adc1 > adc1_threshold) {
-			if (fs->adc2 > adc2_threshold) {
-				return FS_BOTH;
-			} else {
-				return FS_LEFT;
-			}
-		} else {
-			if (fs->adc2 > adc2_threshold) {
-				return FS_RIGHT;
-			}
 		}
 	}
 
@@ -39,11 +24,10 @@ FootpadSensorState footpad_sensor_state_evaluate(const FootpadSensor *fs, const 
 }
 
 void footpad_sensor_update(FootpadSensor *fs, const float_config *config) {
+	fs->adc3 = VESC_IF->io_read_analog(VESC_PIN_ADC3);
+
 	fs->adc1 = VESC_IF->io_read_analog(VESC_PIN_ADC1);
-	fs->adc2 = VESC_IF->io_read_analog(VESC_PIN_ADC2); // Returns -1.0 if the pin is missing on the hardware
-	if (fs->adc2 < 0.0) {
-		fs->adc2 = 0.0;
-	}
+	fs->adc2 = VESC_IF->io_read_analog(VESC_PIN_ADC2);
 
 	fs->state = footpad_sensor_state_evaluate(fs, config, false);
 }

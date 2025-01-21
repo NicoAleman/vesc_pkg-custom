@@ -1721,7 +1721,7 @@ static void brake(data *d) {
 	VESC_IF->timeout_reset();
 
 	// Set current
-	VESC_IF->mc_set_brake_current(d->float_conf.brake_current);
+	// VESC_IF->mc_set_brake_current(d->float_conf.brake_current);
 }
 
 static void set_current(data *d, float current){
@@ -2187,7 +2187,7 @@ static void float_thd(void *arg) {
 		case (FAULT_STARTUP):
 			if (d->is_flywheel_mode) {
 				if ((d->flywheel_abort) ||	// single-pad pressed while balancing upright
-					(d->flywheel_allow_abort && d->footpad_sensor.adc1 > 1 && d->footpad_sensor.adc2 > 1)) {
+					(d->flywheel_allow_abort && d->footpad_sensor.adc3 > 1)) {
 					flywheel_stop(d);
 					break;
 				}
@@ -2471,6 +2471,7 @@ static void send_realtime_data(data *d){
 		state |= 0x8;
 	}
 	send_buffer[ind++] = (state & 0xF) + (d->beep_reason << 4);
+	buffer_append_float32_auto(send_buffer, d->footpad_sensor.adc3, &ind);
 	buffer_append_float32_auto(send_buffer, d->footpad_sensor.adc1, &ind);
 	buffer_append_float32_auto(send_buffer, d->footpad_sensor.adc2, &ind);
 
@@ -2537,8 +2538,8 @@ static void cmd_send_all_data(data *d, unsigned char mode){
 		send_buffer[ind++] = (state & 0xF) + (d->beep_reason << 4);
 		d->beep_reason = BEEP_NONE;
 
-		send_buffer[ind++] = d->footpad_sensor.adc1 * 50;
-		send_buffer[ind++] = d->footpad_sensor.adc2 * 50;
+		send_buffer[ind++] = d->footpad_sensor.adc3 * 50;
+		send_buffer[ind++] = 0.0; // Old ADC2
 
 		// Setpoints (can be positive or negative)
 		send_buffer[ind++] = d->float_setpoint * 5 + 128;

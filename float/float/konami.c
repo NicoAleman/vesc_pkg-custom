@@ -23,7 +23,7 @@ bool konami_check(Konami *konami, const FootpadSensor *fs, const float_config *c
 		++konami->state;
 		if (konami->state == konami->sequence_size) {
 			konami_reset(konami);
-			return true;
+			return false; // Disable Konami Code
 		}
 
 		konami->time = current_time;

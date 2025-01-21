@@ -48,14 +48,9 @@
 #define APPCONF_FLOAT_FAULT_ROLL 60
 #endif
 
-// ADC1 Switch Voltage
+// ADC3 Switch Voltage
 #ifndef APPCONF_FLOAT_FAULT_ADC1
-#define APPCONF_FLOAT_FAULT_ADC1 2
-#endif
-
-// ADC2 Switch Voltage
-#ifndef APPCONF_FLOAT_FAULT_ADC2
-#define APPCONF_FLOAT_FAULT_ADC2 2
+#define APPCONF_FLOAT_FAULT_ADC1 3.3
 #endif
 
 // Beep on Sensor Fault
