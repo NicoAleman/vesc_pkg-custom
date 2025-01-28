@@ -194,7 +194,7 @@ Item {
 		var handtest = switch_state & 0x8;
 		var new_beep_reason = switch_state >> 4;
 		switch_state = switch_state & 0x3;
-                var adc3 = dv.getFloat32(ind); ind += 4;
+                var pb12 = dv.getFloat32(ind); ind += 4;
                 var adc1 = dv.getFloat32(ind); ind += 4;
                 var adc2 = dv.getFloat32(ind); ind += 4;
 
@@ -303,7 +303,7 @@ Item {
                 }else if(switch_state == 1){
                     switchString = "Half"
                     /*HOW TO ACCESS CONFIG FROM QML???
-                    if (adc3 >= VescIf.mcConfig().fault_adc1)
+                    if (pb12 >= VescIf.mcConfig().fault_adc1)
                         switchString += " [On]"
                     else
                         switchString += " [Off]"*/
@@ -341,7 +341,7 @@ Item {
                     "Current (Motor)     : " + motor_current.toFixed(2) + "A\n" +
                     "Pitch               : " + pitch.toFixed(2) + "°\n" +
                     "Roll                : " + roll.toFixed(2) + "°\n" +
-                    "ADC3                : " + adc3.toFixed(2) + "V\n" +
+                    "PB12                : " + pb12.toFixed(2) + "V\n" +
                     "ADC1 / ADC2         : " + adc1.toFixed(2) + "V / " + adc2.toFixed(2) + "V\n"
 
                 setpoints.text =
@@ -700,7 +700,7 @@ Item {
 					}
 					Text {
 						id: versionText
-						text: "{{VERSION}}.0c_bike"
+						text: "{{VERSION}}.0c_bikeV2"
 						color: Utility.getAppHexColor("lightText")
 						font.pointSize: 10
 						font.weight: Font.Black
