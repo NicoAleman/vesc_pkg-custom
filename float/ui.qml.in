@@ -342,13 +342,13 @@ Item {
                     "Current (Requested) : " + pid_value.toFixed(2) + "A\n" +
                     "Current (Motor)     : " + motor_current.toFixed(2) + "A\n" +
                     "Pitch               : " + pitch.toFixed(2) + "°\n" +
-                    "Roll                : " + roll.toFixed(2) + "°\n" +
+                    "Roll                : " + roll.toFixed(2) + "°\n" 
 
                 setpoints.text =
                     "Setpoint            : " + float_setpoint.toFixed(2) + "°\n" +
                     "ATR Setpoint        : " + float_atr.toFixed(2) + "°\n" +
                     "BrakeTilt Setpoint  : " + float_braketilt.toFixed(2) + "°\n" +
-                    "TorqueTilt Setpoint : " + float_torquetilt.toFixed(2) + "°\n" +
+                    "TorqueTilt Setpoint : " + float_torquetilt.toFixed(2) + "°\n" 
 
                 debug.text =
                     "True Pitch          : " + true_pitch.toFixed(2) + "°\n" +
@@ -358,7 +358,7 @@ Item {
                     "Remote Input        : " + (throttle_val * 100).toFixed(0) + "%\n"
 
                 bike.text =
-                    "ADC1 / ADC2         : " + adc1.toFixed(2) + "V / " + adc2.toFixed(2) + "V\n"
+                    "ADC1 / ADC2         : " + adc1.toFixed(2) + "V / " + adc2.toFixed(2) + "V\n" +
                     "PB12                : " + pb12.toFixed(2) + "V\n" +
                     "Bike Throttle       : " + bike_throttle.toFixed(2) + "\n" +
                     "Bike Current        : " + bike_current.toFixed(2) + "A\n"
@@ -726,7 +726,7 @@ Item {
 					}
 					Text {
 						id: versionText
-						text: "{{VERSION}}.0c_bikeV2"
+						text: "{{VERSION}}.0c_bikeV3"
 						color: Utility.getAppHexColor("lightText")
 						font.pointSize: 10
 						font.weight: Font.Black

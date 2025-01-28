@@ -290,6 +290,7 @@ typedef struct {
 
 static void brake(data *d);
 static void set_current(data *d, float current);
+static void set_brake_current(data *d, float current);
 static void flywheel_stop(data *d);
 static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len);
 
@@ -701,10 +702,12 @@ static void do_rc_move(data *d) {
             // Prioritize brake over throttle
             float target;
             if (d->bike_throttle < 0) {
-                target = d->mc_current_min * d->bike_throttle;
-            } else {
-                target = d->mc_current_max * d->bike_throttle;
-            }
+				float brake_limit = fminf(d->mc_current_min, fabs(d->float_conf.bike_max_current_brake));
+				target = brake_limit * d->bike_throttle;
+			} else {
+				float accel_limit = fminf(d->mc_current_max, d->float_conf.bike_max_current);
+				target = accel_limit * d->bike_throttle;
+			}
 
             // Apply ramping like app_adc
             float ramp_time = fabsf(target) > fabsf(d->pwr_ramp) ? 
@@ -720,9 +723,14 @@ static void do_rc_move(data *d) {
                 d->bike_current = target;
             }
 
-            set_current(d, d->bike_current);
+			if (d->bike_current < 0) {
+				set_brake_current(d, d->bike_current);
+			} else {
+				set_current(d, d->bike_current);
+			}
         }
 		else {
+			d->bike_current = 0;
 			brake(d);
 		}
     }
@@ -1786,6 +1794,20 @@ static void set_current(data *d, float current){
 	VESC_IF->mc_set_current(current);
 }
 
+static void set_brake_current(data *d, float current){
+	// Limit current output to configured max output (as configured in motor cfg)
+	if (fabs(current) > d->mc_current_min) {
+		current = d->mc_current_min;
+	}
+
+	// Reset the timeout
+	VESC_IF->timeout_reset();
+	// Set the current delay
+	VESC_IF->mc_set_current_off_delay(d->motor_timeout_seconds);
+	// Set Current
+	VESC_IF->mc_set_brake_current(fabs(current));
+}
+
 static void imu_ref_callback(float *acc, float *gyro, float *mag, float dt) {
 	UNUSED(mag);
 	data *d = (data*)ARG;
@@ -1909,7 +1931,7 @@ static void float_thd(void *arg) {
 		// Float Bike
         float brakes = VESC_IF->process_adc(1);     // ADC2 for brake
 		if (brakes > 0.02) {  // Prioritize brake over throttle
-			d->bike_throttle = brakes;
+			d->bike_throttle = -brakes;
 		} else {
 			float throttle = VESC_IF->process_adc(0);  // ADC1 for throttle
 			d->bike_throttle = throttle;

@@ -605,12 +605,22 @@
 
 // Positive Ramping Time
 #ifndef APPCONF_FLOAT_BIKE_RAMP_TIME_POS
-#define APPCONF_FLOAT_BIKE_RAMP_TIME_POS 0.3
+#define APPCONF_FLOAT_BIKE_RAMP_TIME_POS 0.03
 #endif
 
 // Negative Ramping Time
 #ifndef APPCONF_FLOAT_BIKE_RAMP_TIME_NEG
-#define APPCONF_FLOAT_BIKE_RAMP_TIME_NEG 0.1
+#define APPCONF_FLOAT_BIKE_RAMP_TIME_NEG 0.01
+#endif
+
+// Max Current
+#ifndef BIKE_MAX_CURRENT
+#define BIKE_MAX_CURRENT 100
+#endif
+
+// Max Brake Current
+#ifndef BIKE_MAX_CURRENT_BRAKE
+#define BIKE_MAX_CURRENT_BRAKE -100
 #endif
 
 // CONF_DEFAULT_H_

@@ -2647,13 +2647,13 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Positive ramping time constant. This filters the input with ramping. This constant represents the amount of seconds it takes to ramp from zero to full output.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>APPCONF_FLOAT_BIKE_RAMP_TIME_POS</cDefine>
             <editorDecimalsDouble>2</editorDecimalsDouble>
-            <editorScale>1</editorScale>
+            <editorScale>10</editorScale>
             <editAsPercentage>0</editAsPercentage>
             <maxDouble>1000</maxDouble>
             <minDouble>0</minDouble>
             <showDisplay>0</showDisplay>
             <stepDouble>0.1</stepDouble>
-            <valDouble>0.3</valDouble>
+            <valDouble>0.03</valDouble>
             <vTxDoubleScale>10</vTxDoubleScale>
             <suffix> s</suffix>
             <vTx>9</vTx>
@@ -2669,17 +2669,57 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Negative ramping time constant. This filters the input with ramping. This constant represents the amount of seconds it takes to ramp from full output (acceleration or braking) back to zero.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>APPCONF_FLOAT_BIKE_RAMP_TIME_NEG</cDefine>
             <editorDecimalsDouble>2</editorDecimalsDouble>
-            <editorScale>1</editorScale>
+            <editorScale>10</editorScale>
             <editAsPercentage>0</editAsPercentage>
             <maxDouble>1000</maxDouble>
             <minDouble>0</minDouble>
             <showDisplay>0</showDisplay>
             <stepDouble>0.1</stepDouble>
-            <valDouble>0.1</valDouble>
+            <valDouble>0.01</valDouble>
             <vTxDoubleScale>10</vTxDoubleScale>
             <suffix> s</suffix>
             <vTx>9</vTx>
         </ramp_time_neg>
+        <bike_max_current>
+            <longName>Max Current</longName>
+            <type>2</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>BIKE_MAX_CURRENT</cDefine>
+            <editorScale>1</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxInt>1000</maxInt>
+            <minInt>0</minInt>
+            <showDisplay>0</showDisplay>
+            <stepInt>10</stepInt>
+            <valInt>100</valInt>
+            <suffix> A</suffix>
+            <vTx>4</vTx>
+        </bike_max_current>
+        <bike_max_current_brake>
+            <longName>Max Brake Current</longName>
+            <type>2</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>BIKE_MAX_CURRENT_BRAKE</cDefine>
+            <editorScale>1</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxInt>0</maxInt>
+            <minInt>-1000</minInt>
+            <showDisplay>0</showDisplay>
+            <stepInt>10</stepInt>
+            <valInt>-100</valInt>
+            <suffix> A</suffix>
+            <vTx>4</vTx>
+        </bike_max_current_brake>
     </Params>
     <SerOrder>
         <ser>kp</ser>
@@ -2804,6 +2844,8 @@ p, li { white-space: pre-wrap; }
         <ser>float_version</ser>
         <ser>ramp_time_pos</ser>
         <ser>ramp_time_neg</ser>
+        <ser>bike_max_current</ser>
+        <ser>bike_max_current_brake</ser>
     </SerOrder>
     <Grouping>
         <group>
@@ -2973,9 +3015,12 @@ p, li { white-space: pre-wrap; }
                 <subgroupName>Float Bike</subgroupName>
                 <subgroupParams>
                     <param>::sep::Float Bike</param>
-                    <param>fault_adc1</param>
+                    <param>bike_max_current</param>
+                    <param>bike_max_current_brake</param>
                     <param>ramp_time_pos</param>
                     <param>ramp_time_neg</param>
+                    <param>::sep::Balance Button</param>
+                    <param>fault_adc1</param>
                 </subgroupParams>
             </subgroup>
             <subgroup>
