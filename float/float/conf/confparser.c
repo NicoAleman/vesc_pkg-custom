@@ -130,6 +130,8 @@ int32_t confparser_serialize_float_config(uint8_t *buffer, const float_config *c
 	buffer[ind++] = conf->is_beeper_enabled;
 	buffer[ind++] = conf->float_disable;
 	buffer_append_float16(buffer, conf->float_version, 1000, &ind);
+	buffer_append_float32_auto(buffer, conf->ramp_time_pos, &ind);
+	buffer_append_float32_auto(buffer, conf->ramp_time_neg, &ind);
 
 	return ind;
 }
@@ -262,6 +264,8 @@ bool confparser_deserialize_float_config(const uint8_t *buffer, float_config *co
 	conf->is_beeper_enabled = buffer[ind++];
 	conf->float_disable = buffer[ind++];
 	conf->float_version = buffer_get_float16(buffer, 1000, &ind);
+	conf->ramp_time_pos = buffer_get_float32_auto(buffer, &ind);
+	conf->ramp_time_neg = buffer_get_float32_auto(buffer, &ind);
 
 	return true;
 }
@@ -387,5 +391,7 @@ void confparser_set_defaults_float_config(float_config *conf) {
 	conf->is_beeper_enabled = APPCONF_FLOAT_IS_BEEPER_ENABLED;
 	conf->float_disable = APPCONF_FLOAT_DISABLE;
 	conf->float_version = APPCONF_FLOAT_VERSION;
+	conf->ramp_time_pos = APPCONF_FLOAT_BIKE_RAMP_TIME_POS;
+	conf->ramp_time_neg = APPCONF_FLOAT_BIKE_RAMP_TIME_NEG;
 }
 

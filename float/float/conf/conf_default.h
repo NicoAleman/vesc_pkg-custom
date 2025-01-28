@@ -48,7 +48,7 @@
 #define APPCONF_FLOAT_FAULT_ROLL 60
 #endif
 
-// ADC3 Switch Voltage
+// PB12 Switch Threshold
 #ifndef APPCONF_FLOAT_FAULT_ADC1
 #define APPCONF_FLOAT_FAULT_ADC1 3.3
 #endif
@@ -105,7 +105,7 @@
 
 // Angle
 #ifndef APPCONF_FLOAT_TILTBACK_DUTY_ANGLE
-#define APPCONF_FLOAT_TILTBACK_DUTY_ANGLE 5
+#define APPCONF_FLOAT_TILTBACK_DUTY_ANGLE 0
 #endif
 
 // Speed
@@ -140,7 +140,7 @@
 
 // Angle
 #ifndef APPCONF_FLOAT_TILTBACK_HV_ANGLE
-#define APPCONF_FLOAT_TILTBACK_HV_ANGLE 8
+#define APPCONF_FLOAT_TILTBACK_HV_ANGLE 0
 #endif
 
 // Speed
@@ -150,12 +150,12 @@
 
 // High Voltage Threshold
 #ifndef APPCONF_FLOAT_TILTBACK_HV
-#define APPCONF_FLOAT_TILTBACK_HV 64.5
+#define APPCONF_FLOAT_TILTBACK_HV 85.5
 #endif
 
 // Angle
 #ifndef APPCONF_FLOAT_TILTBACK_LV_ANGLE
-#define APPCONF_FLOAT_TILTBACK_LV_ANGLE 10
+#define APPCONF_FLOAT_TILTBACK_LV_ANGLE 0
 #endif
 
 // Speed
@@ -165,7 +165,7 @@
 
 // Low Voltage Threshold
 #ifndef APPCONF_FLOAT_TILTBACK_LV
-#define APPCONF_FLOAT_TILTBACK_LV 45
+#define APPCONF_FLOAT_TILTBACK_LV 60
 #endif
 
 // Return To Level Speed
@@ -320,7 +320,7 @@
 
 // Brake Current
 #ifndef APPCONF_FLOAT_BRAKE_CURRENT
-#define APPCONF_FLOAT_BRAKE_CURRENT 6
+#define APPCONF_FLOAT_BRAKE_CURRENT 0
 #endif
 
 // I Term Limit
@@ -390,7 +390,7 @@
 
 // Strength
 #ifndef APPCONF_FLOAT_TURNTILT_STRENGTH
-#define APPCONF_FLOAT_TURNTILT_STRENGTH 6
+#define APPCONF_FLOAT_TURNTILT_STRENGTH 0
 #endif
 
 // Tilitback Angle Limit
@@ -430,12 +430,12 @@
 
 // ATR Uphill Strength
 #ifndef APPCONF_FLOAT_ATR_UPHILL_STRENGTH
-#define APPCONF_FLOAT_ATR_UPHILL_STRENGTH 1
+#define APPCONF_FLOAT_ATR_UPHILL_STRENGTH 0
 #endif
 
 // ATR Downhill Strength
 #ifndef APPCONF_FLOAT_ATR_DOWNHILL_STRENGTH
-#define APPCONF_FLOAT_ATR_DOWNHILL_STRENGTH 1
+#define APPCONF_FLOAT_ATR_DOWNHILL_STRENGTH 0
 #endif
 
 // Threshold Angle Up
@@ -600,7 +600,17 @@
 
 // Package Version
 #ifndef APPCONF_FLOAT_VERSION
-#define APPCONF_FLOAT_VERSION 2
+#define APPCONF_FLOAT_VERSION 2.1
+#endif
+
+// Positive Ramping Time
+#ifndef APPCONF_FLOAT_BIKE_RAMP_TIME_POS
+#define APPCONF_FLOAT_BIKE_RAMP_TIME_POS 0.3
+#endif
+
+// Negative Ramping Time
+#ifndef APPCONF_FLOAT_BIKE_RAMP_TIME_NEG
+#define APPCONF_FLOAT_BIKE_RAMP_TIME_NEG 0.1
 #endif
 
 // CONF_DEFAULT_H_

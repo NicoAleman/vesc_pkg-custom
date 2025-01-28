@@ -163,6 +163,8 @@ typedef struct {
 	int limit_current_accel;
 	int limit_current_brake;
 	int limit_current_cont;
+	float ramp_time_pos;
+	float ramp_time_neg;
 } float_config;
 
 // DATATYPES_H_

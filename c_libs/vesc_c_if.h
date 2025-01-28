@@ -577,6 +577,7 @@ typedef struct {
 	remote_state (*get_remote_state)(void);
 	float (*get_ppm)(void); // Get decoded PPM, range -1.0 to 1.0. If the decoder is not running it will be started.
 	float (*get_ppm_age)(void); // Get time since a pulse was decoded in seconds
+	float (*process_adc)(bool is_adc2); // Get decoded ADC value, range -1.0 to 1.0. If the decoder is not running it will be started.
 	bool (*app_is_output_disabled)(void); // True if apps should disable their output.
 
 	// Interfaces added in firmware 6.2:

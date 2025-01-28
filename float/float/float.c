@@ -269,6 +269,12 @@ typedef struct {
 	float rc_current_target;
 	float rc_current;
 
+	// Float Bike
+	float pwr_ramp;
+	float last_time_ramping;
+	float bike_throttle;
+	float bike_current;
+
 	// Log values
 	float float_setpoint, float_atr, float_braketilt, float_torquetilt, float_turntilt, float_inputtilt;
 	float float_expected_acc, float_measured_acc, float_acc_diff;
@@ -517,6 +523,10 @@ static void configure(data *d) {
 	// Speed below which we check for quickstop conditions
 	d->quickstop_erpm = 200;
 
+	// Feature: Float Bike
+	d->bike_throttle = 0;
+	d->bike_current = 0;
+
 	// Variable nose angle adjustment / tiltback (setting is per 1000erpm, convert to per erpm)
 	d->tiltback_variable = d->float_conf.tiltback_variable / 1000;
 	if ((d->float_conf.tiltback_variable < 0) || (d->float_conf.tiltback_variable_max < 0)) {
@@ -620,6 +630,10 @@ static void reset_vars(data *d) {
 	d->rc_steps = 0;
 	d->rc_current = 0;
 
+	// Float Bike
+	d->pwr_ramp = 0;
+	d->last_time_ramping = 0;
+
 	// Haptic Buzz:
 	d->haptic_tone_in_progress = false;
 	d->haptic_timer = d->current_time;
@@ -650,37 +664,68 @@ static void check_odometer(data *d)
 	}
 }
 
-/**
- *  do_rc_move: perform motor movement while board is idle
- */
-static void do_rc_move(data *d)
-{
-	if (d->rc_steps > 0) {
-		d->rc_current = d->rc_current * 0.95 + d->rc_current_target * 0.05;
-		if (d->abs_erpm > 800)
-			d->rc_current = 0;
-		set_current(d, d->rc_current);
-		d->rc_steps--;
-		d->rc_counter++;
-		if ((d->rc_counter == 500) && (d->rc_current_target > 2)) {
-			d->rc_current_target /= 2;
-		}
-	}
-	else {
-		d->rc_counter = 0;
-		
-		if ((d->float_conf.remote_throttle_current_max > 0) && (d->current_time - d->disengage_timer > d->float_conf.remote_throttle_grace_period) && (fabsf(d->throttle_val) > 0.02)) { // Throttle must be greater than 2% (Help mitigate lingering throttle)
-			float servo_val = d->throttle_val;
-			servo_val *= (d->float_conf.inputtilt_invert_throttle ? -1.0 : 1.0);
-			d->rc_current = d->rc_current * 0.95 + (d->float_conf.remote_throttle_current_max * servo_val) * 0.05;
-			set_current(d, d->rc_current);
-		}
+static void utils_step_towards(float *value, float goal, float step) {
+    if (*value < goal) {
+        if ((*value + step) < goal) {
+            *value += step;
+        } else {
+            *value = goal;
+        }
+    } else if (*value > goal) {
+        if ((*value - step) > goal) {
+            *value -= step;
+        } else {
+            *value = goal;
+        }
+    }
+}
+
+// Modify do_rc_move to handle both RC and ADC inputs
+static void do_rc_move(data *d) {
+    // Original RC remote handling code continues unchanged
+    if (d->rc_steps > 0) {
+        d->rc_current = d->rc_current * 0.95 + d->rc_current_target * 0.05;
+        if (d->abs_erpm > 800)
+            d->rc_current = 0;
+        set_current(d, d->rc_current);
+        d->rc_steps--;
+        d->rc_counter++;
+        if ((d->rc_counter == 500) && (d->rc_current_target > 2)) {
+            d->rc_current_target /= 2;
+        }
+    } else {
+        d->rc_counter = 0;
+        
+        // Only process if ADC values are significant
+        if (fabs(d->bike_throttle) > 0.02) {
+            // Prioritize brake over throttle
+            float target;
+            if (d->bike_throttle < 0) {
+                target = d->mc_current_min * d->bike_throttle;
+            } else {
+                target = d->mc_current_max * d->bike_throttle;
+            }
+
+            // Apply ramping like app_adc
+            float ramp_time = fabsf(target) > fabsf(d->pwr_ramp) ? 
+                            d->float_conf.ramp_time_pos : 
+                            d->float_conf.ramp_time_neg;
+
+            if (ramp_time > 0.01) {
+                const float ramp_step = (d->current_time - d->last_time_ramping) / (ramp_time);
+                utils_step_towards(&d->pwr_ramp, target, ramp_step);
+                d->last_time_ramping = d->current_time;
+                d->bike_current = d->pwr_ramp;
+            } else {
+                d->bike_current = target;
+            }
+
+            set_current(d, d->bike_current);
+        }
 		else {
-			d->rc_current = 0;
-			// Disable output
 			brake(d);
 		}
-	}
+    }
 }
 
 static float get_setpoint_adjustment_step_size(data *d) {
@@ -1721,7 +1766,7 @@ static void brake(data *d) {
 	VESC_IF->timeout_reset();
 
 	// Set current
-	// VESC_IF->mc_set_brake_current(d->float_conf.brake_current);
+	VESC_IF->mc_set_brake_current(d->float_conf.brake_current);
 }
 
 static void set_current(data *d, float current){
@@ -1860,6 +1905,16 @@ static void float_thd(void *arg) {
 
 		d->throttle_val = servo_val;
 		///////////////////////////////////////////////////
+
+		// Float Bike
+        float brakes = VESC_IF->process_adc(1);     // ADC2 for brake
+		if (brakes > 0.02) {  // Prioritize brake over throttle
+			d->bike_throttle = brakes;
+		} else {
+			float throttle = VESC_IF->process_adc(0);  // ADC1 for throttle
+			d->bike_throttle = throttle;
+		}
+
 
 
 		// Torque Tilt:
@@ -2480,8 +2535,10 @@ static void send_realtime_data(data *d){
 	buffer_append_float32_auto(send_buffer, d->float_atr, &ind);
 	buffer_append_float32_auto(send_buffer, d->float_braketilt, &ind);
 	buffer_append_float32_auto(send_buffer, d->float_torquetilt, &ind);
-	buffer_append_float32_auto(send_buffer, d->float_turntilt, &ind);
-	buffer_append_float32_auto(send_buffer, d->float_inputtilt, &ind);
+
+	// Float Bike
+	buffer_append_float32_auto(send_buffer, d->bike_throttle, &ind); // float_turntilt
+	buffer_append_float32_auto(send_buffer, d->bike_current, &ind); // float_inputtilt
 
 	// DEBUG
 	buffer_append_float32_auto(send_buffer, d->true_pitch_angle, &ind);

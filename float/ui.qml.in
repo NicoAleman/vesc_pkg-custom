@@ -202,8 +202,8 @@ Item {
                 var float_atr = dv.getFloat32(ind); ind += 4;
                 var float_braketilt = dv.getFloat32(ind); ind += 4;
                 var float_torquetilt = dv.getFloat32(ind); ind += 4;
-                var float_turntilt = dv.getFloat32(ind); ind += 4;
-                var float_inputtilt = dv.getFloat32(ind); ind += 4;
+                var bike_throttle = dv.getFloat32(ind); ind += 4; // float_turntilt
+                var bike_current = dv.getFloat32(ind); ind += 4; // float_inputtilt
 
                 var true_pitch = dv.getFloat32(ind); ind += 4;
                 var filtered_current = dv.getFloat32(ind); ind += 4;
@@ -320,6 +320,7 @@ Item {
                     rt_data.text = "-- n/a --"
                     setpoints.text = "-- n/a --"
                     debug.text = "-- n/a --"
+                    bike.text = "-- n/a --"
                 }
 		else if(state == 14){
                     rt_state.text =
@@ -330,6 +331,7 @@ Item {
                     rt_data.text = "-- n/a --"
                     setpoints.text = "-- n/a --"
                     debug.text = "-- n/a --"
+                    bike.text = "-- n/a --"
                 }
                 else {
                 rt_state.text =
@@ -341,16 +343,12 @@ Item {
                     "Current (Motor)     : " + motor_current.toFixed(2) + "A\n" +
                     "Pitch               : " + pitch.toFixed(2) + "°\n" +
                     "Roll                : " + roll.toFixed(2) + "°\n" +
-                    "PB12                : " + pb12.toFixed(2) + "V\n" +
-                    "ADC1 / ADC2         : " + adc1.toFixed(2) + "V / " + adc2.toFixed(2) + "V\n"
 
                 setpoints.text =
                     "Setpoint            : " + float_setpoint.toFixed(2) + "°\n" +
                     "ATR Setpoint        : " + float_atr.toFixed(2) + "°\n" +
                     "BrakeTilt Setpoint  : " + float_braketilt.toFixed(2) + "°\n" +
                     "TorqueTilt Setpoint : " + float_torquetilt.toFixed(2) + "°\n" +
-                    "TurnTilt Setpoint   : " + float_turntilt.toFixed(2) + "°\n" +
-                    "RemoteTilt Setpoint  : " + float_inputtilt.toFixed(2) + "°\n"
 
                 debug.text =
                     "True Pitch          : " + true_pitch.toFixed(2) + "°\n" +
@@ -358,6 +356,12 @@ Item {
                     "Acc. Diff.          : " + float_acc_diff.toFixed(2) + "\n" +
                     "Booster Current     : " + applied_booster_current.toFixed(2) + "A\n" +
                     "Remote Input        : " + (throttle_val * 100).toFixed(0) + "%\n"
+
+                bike.text =
+                    "ADC1 / ADC2         : " + adc1.toFixed(2) + "V / " + adc2.toFixed(2) + "V\n"
+                    "PB12                : " + pb12.toFixed(2) + "V\n" +
+                    "Bike Throttle       : " + bike_throttle.toFixed(2) + "\n" +
+                    "Bike Current        : " + bike_current.toFixed(2) + "A\n"
 
                 if (beep_reason > 0) {
 		    debug.text += "Last Beep Reason    : " + beepString + "\n"
@@ -661,6 +665,28 @@ Item {
                         }
                         Text {
                             id: debug
+                            visible: handtest_toggle == 0
+                            color: Utility.getAppHexColor("lightText")
+                            font.family: "DejaVu Sans Mono"
+                            Layout.margins: 0
+                            Layout.leftMargin: 5
+                            Layout.preferredWidth: parent.width/3
+                            text: "-\n"
+                        }
+                        Text {
+                            id: header4
+                            visible: handtest_toggle == 0
+                            color: Utility.getAppHexColor("lightText")
+                            font.family: "DejaVu Sans Mono"
+                            Layout.margins: 0
+                            Layout.leftMargin: 0
+                            Layout.fillWidth: true
+                            text: "Float Bike"
+                            font.underline: true
+                            font.weight: Font.Black
+                        }
+                        Text {
+                            id: bike
                             visible: handtest_toggle == 0
                             color: Utility.getAppHexColor("lightText")
                             font.family: "DejaVu Sans Mono"
