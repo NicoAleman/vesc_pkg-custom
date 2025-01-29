@@ -600,17 +600,17 @@
 
 // Package Version
 #ifndef APPCONF_FLOAT_VERSION
-#define APPCONF_FLOAT_VERSION 2.1
+#define APPCONF_FLOAT_VERSION 2.02
 #endif
 
 // Positive Ramping Time
 #ifndef APPCONF_FLOAT_BIKE_RAMP_TIME_POS
-#define APPCONF_FLOAT_BIKE_RAMP_TIME_POS 0.03
+#define APPCONF_FLOAT_BIKE_RAMP_TIME_POS 0.3
 #endif
 
 // Negative Ramping Time
 #ifndef APPCONF_FLOAT_BIKE_RAMP_TIME_NEG
-#define APPCONF_FLOAT_BIKE_RAMP_TIME_NEG 0.01
+#define APPCONF_FLOAT_BIKE_RAMP_TIME_NEG 0.1
 #endif
 
 // Max Current

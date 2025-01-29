@@ -200,7 +200,7 @@ Item {
 
                 var float_setpoint = dv.getFloat32(ind); ind += 4;
                 var float_atr = dv.getFloat32(ind); ind += 4;
-                var float_braketilt = dv.getFloat32(ind); ind += 4;
+                var bike_target = dv.getFloat32(ind); ind += 4; // float_braketilt
                 var float_torquetilt = dv.getFloat32(ind); ind += 4;
                 var bike_throttle = dv.getFloat32(ind); ind += 4; // float_turntilt
                 var bike_current = dv.getFloat32(ind); ind += 4; // float_inputtilt
@@ -347,7 +347,6 @@ Item {
                 setpoints.text =
                     "Setpoint            : " + float_setpoint.toFixed(2) + "°\n" +
                     "ATR Setpoint        : " + float_atr.toFixed(2) + "°\n" +
-                    "BrakeTilt Setpoint  : " + float_braketilt.toFixed(2) + "°\n" +
                     "TorqueTilt Setpoint : " + float_torquetilt.toFixed(2) + "°\n" 
 
                 debug.text =
@@ -359,8 +358,9 @@ Item {
 
                 bike.text =
                     "ADC1 / ADC2         : " + adc1.toFixed(2) + "V / " + adc2.toFixed(2) + "V\n" +
-                    "PB12                : " + pb12.toFixed(2) + "V\n" +
+                    "PB12                : " + pb12.toFixed(2) + "\n\n" +
                     "Bike Throttle       : " + bike_throttle.toFixed(2) + "\n" +
+                    "Bike Target         : " + bike_target.toFixed(2) + "A\n" +
                     "Bike Current        : " + bike_current.toFixed(2) + "A\n"
 
                 if (beep_reason > 0) {
@@ -726,7 +726,7 @@ Item {
 					}
 					Text {
 						id: versionText
-						text: "{{VERSION}}.0c_bikeV3"
+						text: "{{VERSION}}.0c_bikeV4"
 						color: Utility.getAppHexColor("lightText")
 						font.pointSize: 10
 						font.weight: Font.Black

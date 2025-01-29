@@ -270,9 +270,8 @@ typedef struct {
 	float rc_current;
 
 	// Float Bike
-	float pwr_ramp;
-	float last_time_ramping;
 	float bike_throttle;
+	float bike_target;
 	float bike_current;
 
 	// Log values
@@ -526,6 +525,7 @@ static void configure(data *d) {
 
 	// Feature: Float Bike
 	d->bike_throttle = 0;
+	d->bike_target = 0;
 	d->bike_current = 0;
 
 	// Variable nose angle adjustment / tiltback (setting is per 1000erpm, convert to per erpm)
@@ -632,8 +632,8 @@ static void reset_vars(data *d) {
 	d->rc_current = 0;
 
 	// Float Bike
-	d->pwr_ramp = 0;
-	d->last_time_ramping = 0;
+	d->bike_current = 0;
+	d->bike_target = 0;
 
 	// Haptic Buzz:
 	d->haptic_tone_in_progress = false;
@@ -665,20 +665,11 @@ static void check_odometer(data *d)
 	}
 }
 
-static void utils_step_towards(float *value, float goal, float step) {
-    if (*value < goal) {
-        if ((*value + step) < goal) {
-            *value += step;
-        } else {
-            *value = goal;
-        }
-    } else if (*value > goal) {
-        if ((*value - step) > goal) {
-            *value -= step;
-        } else {
-            *value = goal;
-        }
-    }
+// Calculate alpha coefficient for EMA filter given desired time to reach percentage
+static float calculate_ema_alpha(float time_to_reach_percent, float percent, float sample_rate) {
+    float period = 1.0f / sample_rate;
+    float alpha = 1.0f - expf(-logf(1.0f - percent) * period / time_to_reach_percent);
+    return alpha;
 }
 
 // Modify do_rc_move to handle both RC and ADC inputs
@@ -697,40 +688,32 @@ static void do_rc_move(data *d) {
     } else {
         d->rc_counter = 0;
         
-        // Only process if ADC values are significant
-        if (fabs(d->bike_throttle) > 0.02) {
-            // Prioritize brake over throttle
-            float target;
-            if (d->bike_throttle < 0) {
-				float brake_limit = fminf(d->mc_current_min, fabs(d->float_conf.bike_max_current_brake));
-				target = brake_limit * d->bike_throttle;
-			} else {
-				float accel_limit = fminf(d->mc_current_max, d->float_conf.bike_max_current);
-				target = accel_limit * d->bike_throttle;
-			}
+        if (fabs(d->bike_throttle) > 0.02) { // Minor forced deadzone
+			float current_limit = d->bike_throttle < 0 ?
+				fminf(d->mc_current_min, fabsf(d->float_conf.bike_max_current_brake)) :
+				fminf(d->mc_current_max, d->float_conf.bike_max_current);
 
-            // Apply ramping like app_adc
-            float ramp_time = fabsf(target) > fabsf(d->pwr_ramp) ? 
-                            d->float_conf.ramp_time_pos : 
-                            d->float_conf.ramp_time_neg;
+			d->bike_target = current_limit * d->bike_throttle;
+		} else {
+			d->bike_target = 0;
+		}
 
-            if (ramp_time > 0.01) {
-                const float ramp_step = (d->current_time - d->last_time_ramping) / (ramp_time);
-                utils_step_towards(&d->pwr_ramp, target, ramp_step);
-                d->last_time_ramping = d->current_time;
-                d->bike_current = d->pwr_ramp;
-            } else {
-                d->bike_current = target;
-            }
+		float ramp_time = ((SIGN(d->bike_target) == SIGN(d->bike_current)) && (fabsf(d->bike_target) > fabsf(d->bike_current))) ? 
+			d->float_conf.ramp_time_pos : // Moving Away From Zero
+			d->float_conf.ramp_time_neg;  // Moving Towards Zero
+		
+		if (ramp_time > 0) {
+			float alpha = calculate_ema_alpha(ramp_time, 0.75f, d->float_conf.hertz); // X (ramp_time) seconds to reach 75% of target
+			d->bike_current = (alpha * d->bike_target) + ((1.0f - alpha) * d->bike_current);
+		} else {
+			d->bike_current = d->bike_target;
+		}
 
-			if (d->bike_current < 0) {
-				set_brake_current(d, d->bike_current);
-			} else {
-				set_current(d, d->bike_current);
-			}
-        }
-		else {
-			d->bike_current = 0;
+		if (d->bike_current < 0) {
+			set_brake_current(d, d->bike_current);
+		} else if (d->bike_current > 0) {
+			set_current(d, d->bike_current);
+		} else {
 			brake(d);
 		}
     }
@@ -2555,7 +2538,7 @@ static void send_realtime_data(data *d){
 	// Setpoints
 	buffer_append_float32_auto(send_buffer, d->float_setpoint, &ind);
 	buffer_append_float32_auto(send_buffer, d->float_atr, &ind);
-	buffer_append_float32_auto(send_buffer, d->float_braketilt, &ind);
+	buffer_append_float32_auto(send_buffer, d->bike_target, &ind); // float_braketilt
 	buffer_append_float32_auto(send_buffer, d->float_torquetilt, &ind);
 
 	// Float Bike
