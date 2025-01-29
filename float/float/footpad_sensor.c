@@ -3,11 +3,11 @@
 #include "vesc_c_if.h"
 
 // ADC Hand-Press Scale Factor (Accomdate lighter presses than what's needed for engagement by foot)
-#define ADC_HAND_PRESS_SCALE 0.8f
+#define ADC_HAND_PRESS_SCALE 0.8f // NOT RELEVANT FOR FLOAT BIKE
 
 // Read ADCs and determine footpad sensor state
 FootpadSensorState footpad_sensor_state_evaluate(const FootpadSensor *fs, const float_config *config, bool handpress) {
-	float pb12_threshold = handpress ? config->fault_adc1 * ADC_HAND_PRESS_SCALE : config->fault_adc1;
+	float pb12_threshold = /* handpress ? config->fault_adc1 * ADC_HAND_PRESS_SCALE : */config->fault_adc1;
 
 	// Calculate sensor state from ADC values
 	if (config->fault_adc1 == 3.3) { // Disable Sensor

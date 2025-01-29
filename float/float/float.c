@@ -2252,17 +2252,19 @@ static void float_thd(void *arg) {
 		case (FAULT_STARTUP):
 			if (d->is_flywheel_mode) {
 				if ((d->flywheel_abort) ||	// single-pad pressed while balancing upright
-					(d->flywheel_allow_abort && d->footpad_sensor.pb12 > 1)) {
+					(d->flywheel_allow_abort && d->footpad_sensor.state != FS_NONE)) {
 					flywheel_stop(d);
 					break;
 				}
 			}
 
-			if (!d->is_flywheel_mode && d->true_pitch_angle > 75 && d->true_pitch_angle < 105) {
-				if (konami_check(&d->flywheel_konami, &d->footpad_sensor, &d->float_conf, d->current_time)) {
-					unsigned char enabled[6] = {0x82, 0, 0, 0, 0, 1};
-					cmd_flywheel_toggle(d, enabled, 6);
-				}
+			// FLOAT BIKE: Force Flywheel mode off
+
+			// if (!d->is_flywheel_mode && d->true_pitch_angle > 75 && d->true_pitch_angle < 105) {
+			// 	if (konami_check(&d->flywheel_konami, &d->footpad_sensor, &d->float_conf, d->current_time)) {
+			// 		unsigned char enabled[6] = {0x82, 0, 0, 0, 0, 1};
+			// 		cmd_flywheel_toggle(d, enabled, 6);
+			// 	}
 			}
 
 			if (konami_check(&d->battery_konami, &d->footpad_sensor, &d->float_conf, d->current_time)) {
@@ -3329,7 +3331,7 @@ static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len)
 	// Optional:
 	// cfg[6]: Duty TB Speed in deg/sec
 	int command = cfg[0] & 0x7F;
-	d->is_flywheel_mode = (command == 0) ? false : true;
+	d->is_flywheel_mode = false; // FLOAT BIKE: Force Flywheel mode off
 
 	if (d->is_flywheel_mode) {
 		if ((d->flywheel_pitch_offset == 0) || (command == 2)) {
@@ -3564,7 +3566,8 @@ static void on_command_received(unsigned char *buffer, unsigned int len) {
 		}
 		case FLOAT_COMMAND_FLYWHEEL: {
 			if (len >= 8) {
-				cmd_flywheel_toggle(d, &buffer[2], len-2);
+				// FLOAT BIKE: Force Flywheel mode off
+				// cmd_flywheel_toggle(d, &buffer[2], len-2);
 			}
 			else {
 				if (!VESC_IF->app_is_output_disabled()) {
