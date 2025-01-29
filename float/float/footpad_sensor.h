@@ -10,8 +10,10 @@ typedef enum {
 } FootpadSensorState;
 
 typedef struct {
-	float pb12, adc1, adc2;
+	bool pb12;
+	float adc1, adc2;
 	FootpadSensorState state;
+	uint8_t debounce_counter;
 } FootpadSensor;
 
 FootpadSensorState footpad_sensor_state_evaluate(const FootpadSensor *fs, const float_config *config, bool handpress);

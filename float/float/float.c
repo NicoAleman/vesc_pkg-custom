@@ -2541,7 +2541,7 @@ static void send_realtime_data(data *d){
 		state |= 0x8;
 	}
 	send_buffer[ind++] = (state & 0xF) + (d->beep_reason << 4);
-	buffer_append_float32_auto(send_buffer, d->footpad_sensor.pb12, &ind);
+	buffer_append_float32_auto(send_buffer, d->footpad_sensor.pb12 ? 1.0f : 0.0f, &ind);
 	buffer_append_float32_auto(send_buffer, d->footpad_sensor.adc1, &ind);
 	buffer_append_float32_auto(send_buffer, d->footpad_sensor.adc2, &ind);
 
@@ -2610,7 +2610,7 @@ static void cmd_send_all_data(data *d, unsigned char mode){
 		send_buffer[ind++] = (state & 0xF) + (d->beep_reason << 4);
 		d->beep_reason = BEEP_NONE;
 
-		send_buffer[ind++] = d->footpad_sensor.pb12 * 50;
+		send_buffer[ind++] = 0.0; // Old ADC1
 		send_buffer[ind++] = 0.0; // Old ADC2
 
 		// Setpoints (can be positive or negative)

@@ -600,7 +600,7 @@
 
 // Package Version
 #ifndef APPCONF_FLOAT_VERSION
-#define APPCONF_FLOAT_VERSION 2.02
+#define APPCONF_FLOAT_VERSION 2.05
 #endif
 
 // Max Current
@@ -626,6 +626,16 @@
 // Negative Ramping Alpha
 #ifndef APPCONF_FLOAT_BIKE_RAMP_ALPHA_NEG
 #define APPCONF_FLOAT_BIKE_RAMP_ALPHA_NEG 0.02
+#endif
+
+// Enable Balance Button
+#ifndef BIKE_BUTTON_ENABLED
+#define BIKE_BUTTON_ENABLED 0
+#endif
+
+// Button Debounce Threshold
+#ifndef BIKE_BUTTON_DEBOUNCE_THRESHOLD
+#define BIKE_BUTTON_DEBOUNCE_THRESHOLD 20
 #endif
 
 // CONF_DEFAULT_H_

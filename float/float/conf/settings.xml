@@ -2627,11 +2627,11 @@ p, li { white-space: pre-wrap; }
             <editorDecimalsDouble>2</editorDecimalsDouble>
             <editorScale>1</editorScale>
             <editAsPercentage>0</editAsPercentage>
-            <maxDouble>2.02</maxDouble>
-            <minDouble>2.02</minDouble>
+            <maxDouble>2.05</maxDouble>
+            <minDouble>2.05</minDouble>
             <showDisplay>0</showDisplay>
             <stepDouble>1</stepDouble>
-            <valDouble>2.02</valDouble>
+            <valDouble>2.05</valDouble>
             <vTxDoubleScale>1000</vTxDoubleScale>
             <suffix></suffix>
             <vTx>7</vTx>
@@ -2756,6 +2756,40 @@ p, li { white-space: pre-wrap; }
             <suffix> %</suffix>
             <vTx>9</vTx>
         </bike_brake_throttle_cutoff>
+        <bike_button_enabled>
+            <longName>Enable Balance Button</longName>
+            <type>5</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>BIKE_BUTTON_ENABLED</cDefine>
+            <valInt>0</valInt>
+        </bike_button_enabled>
+        <bike_button_debounce_threshold>
+            <longName>Button Debounce Threshold</longName>
+            <type>2</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Adjusts the threshold for the Debounce Counter, used to filter out noise in the Balance Button signal. This threshold represents the number of consecutive readings needed to change the button's state (based on loop hertz).&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You can adjust the threshold value based on your specific noise characteristics. A higher value will be more resistant to noise, but will also introduce more latency in detecting actual state changes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>BIKE_BUTTON_DEBOUNCE_THRESHOLD</cDefine>
+            <editorScale>1</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxInt>999</maxInt>
+            <minInt>1</minInt>
+            <showDisplay>0</showDisplay>
+            <stepInt>5</stepInt>
+            <valInt>20</valInt>
+            <suffix></suffix>
+            <vTx>1</vTx>
+        </bike_button_debounce_threshold>
     </Params>
     <SerOrder>
         <ser>kp</ser>
@@ -2883,6 +2917,8 @@ p, li { white-space: pre-wrap; }
         <ser>bike_brake_throttle_cutoff</ser>
         <ser>ramp_alpha_pos</ser>
         <ser>ramp_alpha_neg</ser>
+        <ser>bike_button_enabled</ser>
+        <ser>bike_button_debounce_threshold</ser>
     </SerOrder>
     <Grouping>
         <group>
@@ -3059,7 +3095,8 @@ p, li { white-space: pre-wrap; }
                     <param>ramp_alpha_neg</param>
                     <param>bike_brake_throttle_cutoff</param>
                     <param>::sep::Balance Button</param>
-                    <param>fault_adc1</param>
+                    <param>bike_button_enabled</param>
+                    <param>bike_button_debounce_threshold</param>
                 </subgroupParams>
             </subgroup>
             <subgroup>
@@ -3074,7 +3111,6 @@ p, li { white-space: pre-wrap; }
                     <param>tiltback_hv</param>
                     <param>tiltback_lv</param>
                     <param>::sep::Foot Sensors</param>
-                    <param>fault_adc1</param>
                     <param>is_footbeep_enabled</param>
                     <param>::sep::Miscellaneous</param>
                     <param>dark_pitch_offset</param>
