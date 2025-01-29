@@ -291,7 +291,7 @@ static void brake(data *d);
 static void set_current(data *d, float current);
 static void set_brake_current(data *d, float current);
 static void flywheel_stop(data *d);
-static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len);
+// static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len); // FLOAT BIKE: Force Flywheel mode off
 
 /**
  * BUZZER / BEEPER on Servo Pin
@@ -665,12 +665,12 @@ static void check_odometer(data *d)
 	}
 }
 
-// Calculate alpha coefficient for EMA filter given desired time to reach percentage
-static float calculate_ema_alpha(float time_to_reach_percent, float percent, float sample_rate) {
-    float period = 1.0f / sample_rate;
-    float alpha = 1.0f - expf(-logf(1.0f - percent) * period / time_to_reach_percent);
-    return alpha;
-}
+// // Calculate alpha coefficient for EMA filter given desired time to reach percentage
+// static float calculate_ema_alpha(float time_to_reach_percent, float percent, float sample_rate) {
+//     float period = 1.0f / sample_rate;
+//     float alpha = 1.0f - expf(-logf(1.0f - percent) * period / time_to_reach_percent);
+//     return alpha;
+// }
 
 // Modify do_rc_move to handle both RC and ADC inputs
 static void do_rc_move(data *d) {
@@ -688,7 +688,7 @@ static void do_rc_move(data *d) {
     } else {
         d->rc_counter = 0;
         
-        if (fabs(d->bike_throttle) > 0.02) { // Minor forced deadzone
+        if (fabs(d->bike_throttle) > 0.02f) { // Minor forced deadzone
 			float current_limit = d->bike_throttle < 0 ?
 				fminf(d->mc_current_min, fabsf(d->float_conf.bike_max_current_brake)) :
 				fminf(d->mc_current_max, d->float_conf.bike_max_current);
@@ -698,20 +698,23 @@ static void do_rc_move(data *d) {
 			d->bike_target = 0;
 		}
 
-		float ramp_time = ((SIGN(d->bike_target) == SIGN(d->bike_current)) && (fabsf(d->bike_target) > fabsf(d->bike_current))) ? 
-			d->float_conf.ramp_time_pos : // Moving Away From Zero
-			d->float_conf.ramp_time_neg;  // Moving Towards Zero
+		// float ramp_alpha = ((SIGN(d->bike_target) == SIGN(d->bike_current)) && (fabsf(d->bike_target) > fabsf(d->bike_current))) ? 
+		// 	d->float_conf.ramp_alpha_pos : // Moving Away From Zero
+		// 	d->float_conf.ramp_alpha_neg;  // Moving Towards Zero
+
+		float ramp_alpha = (d->bike_current > 0) && (d->bike_target > d->bike_current) ? 
+			d->float_conf.ramp_alpha_pos : // Moving Away From Zero (towards Positive)
+			d->float_conf.ramp_alpha_neg;  // Moving Towards Zero (or towards Negative)
 		
-		if (ramp_time > 0) {
-			float alpha = calculate_ema_alpha(ramp_time, 0.75f, d->float_conf.hertz); // X (ramp_time) seconds to reach 75% of target
-			d->bike_current = (alpha * d->bike_target) + ((1.0f - alpha) * d->bike_current);
+		if (ramp_alpha > 0.0f) {
+			d->bike_current = (ramp_alpha * d->bike_target) + ((1.0f - ramp_alpha) * d->bike_current);
 		} else {
 			d->bike_current = d->bike_target;
 		}
 
-		if (d->bike_current < 0) {
+		if (d->bike_current < -1.0f) { // Deadzone to prevent lingering brake current
 			set_brake_current(d, d->bike_current);
-		} else if (d->bike_current > 0) {
+		} else if (d->bike_current > 1.0f) {
 			set_current(d, d->bike_current);
 		} else {
 			brake(d);
@@ -2265,7 +2268,7 @@ static void float_thd(void *arg) {
 			// 		unsigned char enabled[6] = {0x82, 0, 0, 0, 0, 1};
 			// 		cmd_flywheel_toggle(d, enabled, 6);
 			// 	}
-			}
+			// }
 
 			if (konami_check(&d->battery_konami, &d->footpad_sensor, &d->float_conf, d->current_time)) {
 				if (d->battery_level > 94)
@@ -3313,121 +3316,123 @@ static void cmd_light_ctrl(data *d, unsigned char *cfg, int len)
 	}
 }
 
-static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len)
-{
-	if ((cfg[0] & 0x80) == 0)
-		return;
+// FLOAT BIKE: Force Flywheel mode off
 
-	if ((d->state >= RUNNING) && (d->state <= RUNNING_FLYWHEEL))
-		return;
+// static void cmd_flywheel_toggle(data *d, unsigned char *cfg, int len)
+// {
+// 	if ((cfg[0] & 0x80) == 0)
+// 		return;
 
-	// cfg[0]: Command (0 = stop, 1 = start)
-	// All of the below are mandatory, but can be 0 to just use defaults
-	// cfg[1]: AngleP: kp*10 (e.g. 90: P=9.0)
-	// cfg[2]: RateP:  kp2*100 (e.g. 50: RateP=0.5)
-	// cfg[3]: Duty TB Angle * 10
-	// cfg[4]: Duty TB Duty %
-	// cfg[5]: Allow Abort via footpad (1 = do allow, 0 = don't allow)
-	// Optional:
-	// cfg[6]: Duty TB Speed in deg/sec
-	int command = cfg[0] & 0x7F;
-	d->is_flywheel_mode = false; // FLOAT BIKE: Force Flywheel mode off
+// 	if ((d->state >= RUNNING) && (d->state <= RUNNING_FLYWHEEL))
+// 		return;
 
-	if (d->is_flywheel_mode) {
-		if ((d->flywheel_pitch_offset == 0) || (command == 2)) {
-			// accidental button press?? board isn't evn close to being upright
-			if (fabsf(d->true_pitch_angle) < 70) {
-				// don't forget to set flywheel mode back to false!
-				d->is_flywheel_mode = false;
-				return;
-			}
+// 	// cfg[0]: Command (0 = stop, 1 = start)
+// 	// All of the below are mandatory, but can be 0 to just use defaults
+// 	// cfg[1]: AngleP: kp*10 (e.g. 90: P=9.0)
+// 	// cfg[2]: RateP:  kp2*100 (e.g. 50: RateP=0.5)
+// 	// cfg[3]: Duty TB Angle * 10
+// 	// cfg[4]: Duty TB Duty %
+// 	// cfg[5]: Allow Abort via footpad (1 = do allow, 0 = don't allow)
+// 	// Optional:
+// 	// cfg[6]: Duty TB Speed in deg/sec
+// 	int command = cfg[0] & 0x7F;
+// 	d->is_flywheel_mode = false; // FLOAT BIKE: Force Flywheel mode off
 
-			d->flywheel_pitch_offset = d->true_pitch_angle;
-			d->flywheel_roll_offset = d->roll_angle;
-			beep_alert(d, 1, 1);
-		}
-		else {
-			beep_alert(d, 3, 0);
-		}
-		d->flywheel_abort = false;
+// 	if (d->is_flywheel_mode) {
+// 		if ((d->flywheel_pitch_offset == 0) || (command == 2)) {
+// 			// accidental button press?? board isn't evn close to being upright
+// 			if (fabsf(d->true_pitch_angle) < 70) {
+// 				// don't forget to set flywheel mode back to false!
+// 				d->is_flywheel_mode = false;
+// 				return;
+// 			}
 
-		// Tighter startup/fault tolerances
-		d->startup_pitch_tolerance = 0.2;
-		d->float_conf.startup_pitch_tolerance = 0.2;
-		d->float_conf.startup_roll_tolerance = 25;
-		d->float_conf.fault_pitch = 6;
-		d->float_conf.fault_roll = 60;	// roll can fluctuate significantly in the upright position
-		if (command & 0x4) {
-			d->float_conf.fault_roll = 90;
-		}
-		d->float_conf.fault_delay_pitch = 50; // 50ms delay should help filter out IMU noise
-		d->float_conf.fault_delay_roll = 50;  // 50ms delay should help filter out IMU noise
-		d->surge_enable = false;
+// 			d->flywheel_pitch_offset = d->true_pitch_angle;
+// 			d->flywheel_roll_offset = d->roll_angle;
+// 			beep_alert(d, 1, 1);
+// 		}
+// 		else {
+// 			beep_alert(d, 3, 0);
+// 		}
+// 		d->flywheel_abort = false;
 
-		// Aggressive P with some D (aka Rate-P) for Mahony kp=0.3
-		d->float_conf.kp = 8.0;
-		d->float_conf.kp2 = 0.3;
+// 		// Tighter startup/fault tolerances
+// 		d->startup_pitch_tolerance = 0.2;
+// 		d->float_conf.startup_pitch_tolerance = 0.2;
+// 		d->float_conf.startup_roll_tolerance = 25;
+// 		d->float_conf.fault_pitch = 6;
+// 		d->float_conf.fault_roll = 60;	// roll can fluctuate significantly in the upright position
+// 		if (command & 0x4) {
+// 			d->float_conf.fault_roll = 90;
+// 		}
+// 		d->float_conf.fault_delay_pitch = 50; // 50ms delay should help filter out IMU noise
+// 		d->float_conf.fault_delay_roll = 50;  // 50ms delay should help filter out IMU noise
+// 		d->surge_enable = false;
 
-		if (cfg[1] > 0) {
-			d->float_conf.kp = cfg[1];
-			d->float_conf.kp /= 10;
-		}
-		if (cfg[2] > 0) {
-			d->float_conf.kp2 = cfg[2];
-			d->float_conf.kp2 /= 100;
-		}
+// 		// Aggressive P with some D (aka Rate-P) for Mahony kp=0.3
+// 		d->float_conf.kp = 8.0;
+// 		d->float_conf.kp2 = 0.3;
 
-		d->float_conf.tiltback_duty_angle = 2;
-		d->float_conf.tiltback_duty = 0.1;
-		d->float_conf.tiltback_duty_speed = 5;
-		d->float_conf.tiltback_return_speed = 5;
+// 		if (cfg[1] > 0) {
+// 			d->float_conf.kp = cfg[1];
+// 			d->float_conf.kp /= 10;
+// 		}
+// 		if (cfg[2] > 0) {
+// 			d->float_conf.kp2 = cfg[2];
+// 			d->float_conf.kp2 /= 100;
+// 		}
 
-		if (cfg[3] > 0) {
-			d->float_conf.tiltback_duty_angle = cfg[3];
-			d->float_conf.tiltback_duty_angle /= 10;
-		}
-		if (cfg[4] > 0) {
-			d->float_conf.tiltback_duty = cfg[4];
-			d->float_conf.tiltback_duty /= 100;
-		}
-		if ((len > 6) && (cfg[6] > 1) && (cfg[6] < 100)) {
-			d->float_conf.tiltback_duty_speed = cfg[6] / 2;
-			d->float_conf.tiltback_return_speed = cfg[6] / 2;
-		}
-		d->tiltback_duty_step_size = d->float_conf.tiltback_duty_speed / d->float_conf.hertz;
-		d->tiltback_return_step_size = d->float_conf.tiltback_return_speed / d->float_conf.hertz;
+// 		d->float_conf.tiltback_duty_angle = 2;
+// 		d->float_conf.tiltback_duty = 0.1;
+// 		d->float_conf.tiltback_duty_speed = 5;
+// 		d->float_conf.tiltback_return_speed = 5;
 
-		// Limit speed of wheel and limit amps
-		//backup_erpm = mc_interface_get_configuration()->l_max_erpm;
-		VESC_IF->set_cfg_float(CFG_PARAM_l_min_erpm + 100, -6000);
-		VESC_IF->set_cfg_float(CFG_PARAM_l_max_erpm + 100, 6000);
-		d->current_max = d->current_min = 50;
+// 		if (cfg[3] > 0) {
+// 			d->float_conf.tiltback_duty_angle = cfg[3];
+// 			d->float_conf.tiltback_duty_angle /= 10;
+// 		}
+// 		if (cfg[4] > 0) {
+// 			d->float_conf.tiltback_duty = cfg[4];
+// 			d->float_conf.tiltback_duty /= 100;
+// 		}
+// 		if ((len > 6) && (cfg[6] > 1) && (cfg[6] < 100)) {
+// 			d->float_conf.tiltback_duty_speed = cfg[6] / 2;
+// 			d->float_conf.tiltback_return_speed = cfg[6] / 2;
+// 		}
+// 		d->tiltback_duty_step_size = d->float_conf.tiltback_duty_speed / d->float_conf.hertz;
+// 		d->tiltback_return_step_size = d->float_conf.tiltback_return_speed / d->float_conf.hertz;
 
-		d->flywheel_allow_abort = cfg[5];
+// 		// Limit speed of wheel and limit amps
+// 		//backup_erpm = mc_interface_get_configuration()->l_max_erpm;
+// 		VESC_IF->set_cfg_float(CFG_PARAM_l_min_erpm + 100, -6000);
+// 		VESC_IF->set_cfg_float(CFG_PARAM_l_max_erpm + 100, 6000);
+// 		d->current_max = d->current_min = 50;
 
-		// Disable I-term and all tune modifiers and tilts
-		d->float_conf.ki = 0;
-		d->float_conf.kp_brake = 1;
-		d->float_conf.kp2_brake = 1;
-		d->float_conf.brkbooster_angle = 100;
-		d->float_conf.booster_angle = 100;
-		d->float_conf.torquetilt_strength = 0;
-		d->float_conf.torquetilt_strength_regen = 0;
-		d->float_conf.atr_strength_up = 0;
-		d->float_conf.atr_strength_down = 0;
-		d->float_conf.turntilt_strength = 0;
-		d->float_conf.tiltback_constant = 0;
-		d->float_conf.tiltback_variable = 0;
-		d->float_conf.brake_current = 0;
-		d->float_conf.fault_darkride_enabled = false;
-		d->float_conf.fault_reversestop_enabled = false;
-		d->float_conf.tiltback_constant = 0;
-		d->tiltback_variable_max_erpm = 0;
-		d->tiltback_variable = 0;
-	} else {
-		flywheel_stop(d);
-	}
-}
+// 		d->flywheel_allow_abort = cfg[5];
+
+// 		// Disable I-term and all tune modifiers and tilts
+// 		d->float_conf.ki = 0;
+// 		d->float_conf.kp_brake = 1;
+// 		d->float_conf.kp2_brake = 1;
+// 		d->float_conf.brkbooster_angle = 100;
+// 		d->float_conf.booster_angle = 100;
+// 		d->float_conf.torquetilt_strength = 0;
+// 		d->float_conf.torquetilt_strength_regen = 0;
+// 		d->float_conf.atr_strength_up = 0;
+// 		d->float_conf.atr_strength_down = 0;
+// 		d->float_conf.turntilt_strength = 0;
+// 		d->float_conf.tiltback_constant = 0;
+// 		d->float_conf.tiltback_variable = 0;
+// 		d->float_conf.brake_current = 0;
+// 		d->float_conf.fault_darkride_enabled = false;
+// 		d->float_conf.fault_reversestop_enabled = false;
+// 		d->float_conf.tiltback_constant = 0;
+// 		d->tiltback_variable_max_erpm = 0;
+// 		d->tiltback_variable = 0;
+// 	} else {
+// 		flywheel_stop(d);
+// 	}
+// }
 
 void flywheel_stop(data *d)
 {

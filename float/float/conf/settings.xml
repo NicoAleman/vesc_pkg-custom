@@ -2636,50 +2636,60 @@ p, li { white-space: pre-wrap; }
             <suffix></suffix>
             <vTx>7</vTx>
         </float_version>
-        <ramp_time_pos>
-            <longName>Positive Ramping Time</longName>
+        <ramp_alpha_pos>
+            <longName>Positive Ramping Alpha</longName>
             <type>1</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Positive ramping time constant. This filters the input with ramping. This constant represents the amount of seconds it takes to ramp from zero to 75% of the target.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
-            <cDefine>APPCONF_FLOAT_BIKE_RAMP_TIME_POS</cDefine>
-            <editorDecimalsDouble>2</editorDecimalsDouble>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Positive ramping alpha constant. This filters the input with ramping, from zero towards a positive target.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;α&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt; &lt;/span&gt;= alpha&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#9cdcfe;&quot;&gt;output_current&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt; = (&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;α&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt; * &lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#9cdcfe;&quot;&gt;target_current&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt;) + ((&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#b5cea8;&quot;&gt;1.0&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt; - &lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;α&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt;) * &lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#9cdcfe;&quot;&gt;starting_current&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt;)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;(Run at configured sample rate, e.g. 832Hz)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_BIKE_RAMP_ALPHA_POS</cDefine>
+            <editorDecimalsDouble>4</editorDecimalsDouble>
             <editorScale>1</editorScale>
             <editAsPercentage>0</editAsPercentage>
-            <maxDouble>1000</maxDouble>
-            <minDouble>0</minDouble>
+            <maxDouble>1</maxDouble>
+            <minDouble>0.001</minDouble>
             <showDisplay>0</showDisplay>
-            <stepDouble>0.05</stepDouble>
-            <valDouble>0.3</valDouble>
-            <vTxDoubleScale>10</vTxDoubleScale>
-            <suffix> s</suffix>
-            <vTx>9</vTx>
-        </ramp_time_pos>
-        <ramp_time_neg>
-            <longName>Negative Ramping Time</longName>
+            <stepDouble>0.001</stepDouble>
+            <valDouble>0.005</valDouble>
+            <vTxDoubleScale>10000</vTxDoubleScale>
+            <suffix></suffix>
+            <vTx>7</vTx>
+        </ramp_alpha_pos>
+        <ramp_alpha_neg>
+            <longName>Negative Ramping Alpha</longName>
             <type>1</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Negative ramping time constant. This filters the input with ramping. This constant represents the amount of seconds it takes to ramp from full output (acceleration or braking) back to 75% of the way to zero.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
-            <cDefine>APPCONF_FLOAT_BIKE_RAMP_TIME_NEG</cDefine>
-            <editorDecimalsDouble>2</editorDecimalsDouble>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Negative ramping alpha constant. This filters the input with ramping, from current output back toward zero, or toward a negative target.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;α&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt; &lt;/span&gt;= alpha&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#9cdcfe;&quot;&gt;output_current&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt; = (&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;α&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt; * &lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#9cdcfe;&quot;&gt;target_current&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt;) + ((&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#b5cea8;&quot;&gt;1.0&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt; - &lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;α&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt;) * &lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#9cdcfe;&quot;&gt;starting_current&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:14px; color:#d4d4d4;&quot;&gt;)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;(Run at configured sample rate, e.g. 832Hz)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>APPCONF_FLOAT_BIKE_RAMP_ALPHA_NEG</cDefine>
+            <editorDecimalsDouble>4</editorDecimalsDouble>
             <editorScale>1</editorScale>
             <editAsPercentage>0</editAsPercentage>
-            <maxDouble>1000</maxDouble>
-            <minDouble>0</minDouble>
+            <maxDouble>1</maxDouble>
+            <minDouble>0.001</minDouble>
             <showDisplay>0</showDisplay>
-            <stepDouble>0.05</stepDouble>
-            <valDouble>0.1</valDouble>
-            <vTxDoubleScale>10</vTxDoubleScale>
-            <suffix> s</suffix>
-            <vTx>9</vTx>
-        </ramp_time_neg>
+            <stepDouble>0.001</stepDouble>
+            <valDouble>0.02</valDouble>
+            <vTxDoubleScale>10000</vTxDoubleScale>
+            <suffix></suffix>
+            <vTx>7</vTx>
+        </ramp_alpha_neg>
         <bike_max_current>
             <longName>Max Current</longName>
             <type>2</type>
@@ -2730,18 +2740,20 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;As Brake Input approaches this threshold, the Throttle input is scaled down linearly toward 0%.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For example, with 50% cutoff, Throttle at 100%, and Brakes at 25%, we scale Throttle by 50%, down to 50% Throttle. With the final input being Throttle - Brakes, this leaves us with 25% Throttle.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For example, with 50% cutoff, Throttle at 100%, and Brakes at 25%, we scale Throttle by 50%, down to 50% Throttle. With the final input being Throttle - Brakes, this leaves us with 25% Throttle.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Can also be set beyond 100%. For example, 200% cutoff with Throttle 100% and Brakes at 100%, we scale throttle by 50%, down to 50% Throttle. With the final input being Throttle - Brakes, this leaves us with 50% Brakes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>BIKE_BRAKE_THROTTLE_CUTOFF</cDefine>
-            <editorDecimalsDouble>2</editorDecimalsDouble>
-            <editorScale>1</editorScale>
-            <editAsPercentage>1</editAsPercentage>
-            <maxDouble>1</maxDouble>
+            <editorDecimalsDouble>0</editorDecimalsDouble>
+            <editorScale>100</editorScale>
+            <editAsPercentage>0</editAsPercentage>
+            <maxDouble>2</maxDouble>
             <minDouble>0</minDouble>
             <showDisplay>0</showDisplay>
-            <stepDouble>0.1</stepDouble>
-            <valDouble>0.5</valDouble>
+            <stepDouble>10</stepDouble>
+            <valDouble>1</valDouble>
             <vTxDoubleScale>1</vTxDoubleScale>
-            <suffix> A</suffix>
+            <suffix> %</suffix>
             <vTx>9</vTx>
         </bike_brake_throttle_cutoff>
     </Params>
@@ -2866,11 +2878,11 @@ p, li { white-space: pre-wrap; }
         <ser>is_beeper_enabled</ser>
         <ser>float_disable</ser>
         <ser>float_version</ser>
-        <ser>ramp_time_pos</ser>
-        <ser>ramp_time_neg</ser>
         <ser>bike_max_current</ser>
         <ser>bike_max_current_brake</ser>
         <ser>bike_brake_throttle_cutoff</ser>
+        <ser>ramp_alpha_pos</ser>
+        <ser>ramp_alpha_neg</ser>
     </SerOrder>
     <Grouping>
         <group>
@@ -3043,8 +3055,8 @@ p, li { white-space: pre-wrap; }
                     <param>bike_max_current</param>
                     <param>bike_max_current_brake</param>
                     <param>::sep::Throttle</param>
-                    <param>ramp_time_pos</param>
-                    <param>ramp_time_neg</param>
+                    <param>ramp_alpha_pos</param>
+                    <param>ramp_alpha_neg</param>
                     <param>bike_brake_throttle_cutoff</param>
                     <param>::sep::Balance Button</param>
                     <param>fault_adc1</param>

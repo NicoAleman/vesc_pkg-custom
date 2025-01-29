@@ -603,16 +603,6 @@
 #define APPCONF_FLOAT_VERSION 2.02
 #endif
 
-// Positive Ramping Time
-#ifndef APPCONF_FLOAT_BIKE_RAMP_TIME_POS
-#define APPCONF_FLOAT_BIKE_RAMP_TIME_POS 0.3
-#endif
-
-// Negative Ramping Time
-#ifndef APPCONF_FLOAT_BIKE_RAMP_TIME_NEG
-#define APPCONF_FLOAT_BIKE_RAMP_TIME_NEG 0.1
-#endif
-
 // Max Current
 #ifndef BIKE_MAX_CURRENT
 #define BIKE_MAX_CURRENT 100
@@ -625,7 +615,17 @@
 
 // Brake Throttle Cutoff
 #ifndef BIKE_BRAKE_THROTTLE_CUTOFF
-#define BIKE_BRAKE_THROTTLE_CUTOFF 0.5
+#define BIKE_BRAKE_THROTTLE_CUTOFF 1
+#endif
+
+// Positive Ramping Alpha
+#ifndef APPCONF_FLOAT_BIKE_RAMP_ALPHA_POS
+#define APPCONF_FLOAT_BIKE_RAMP_ALPHA_POS 0.005
+#endif
+
+// Negative Ramping Alpha
+#ifndef APPCONF_FLOAT_BIKE_RAMP_ALPHA_NEG
+#define APPCONF_FLOAT_BIKE_RAMP_ALPHA_NEG 0.02
 #endif
 
 // CONF_DEFAULT_H_
