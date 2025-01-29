@@ -2720,6 +2720,30 @@ p, li { white-space: pre-wrap; }
             <suffix> A</suffix>
             <vTx>4</vTx>
         </bike_max_current_brake>
+        <bike_brake_throttle_cutoff>
+            <longName>Brake Throttle Cutoff</longName>
+            <type>1</type>
+            <transmittable>1</transmittable>
+            <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;As Brake Input approaches this threshold, the Throttle input is scaled down linearly toward 0%.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For example, with 50% cutoff, Throttle at 100%, and Brakes at 25%, we scale Throttle by 50%, down to 50% Throttle. With the final input being Throttle - Brakes, this leaves us with 25% Throttle.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>BIKE_BRAKE_THROTTLE_CUTOFF</cDefine>
+            <editorDecimalsDouble>2</editorDecimalsDouble>
+            <editorScale>1</editorScale>
+            <editAsPercentage>1</editAsPercentage>
+            <maxDouble>1</maxDouble>
+            <minDouble>0</minDouble>
+            <showDisplay>0</showDisplay>
+            <stepDouble>0.1</stepDouble>
+            <valDouble>0.5</valDouble>
+            <vTxDoubleScale>1</vTxDoubleScale>
+            <suffix> A</suffix>
+            <vTx>9</vTx>
+        </bike_brake_throttle_cutoff>
     </Params>
     <SerOrder>
         <ser>kp</ser>
@@ -2846,6 +2870,7 @@ p, li { white-space: pre-wrap; }
         <ser>ramp_time_neg</ser>
         <ser>bike_max_current</ser>
         <ser>bike_max_current_brake</ser>
+        <ser>bike_brake_throttle_cutoff</ser>
     </SerOrder>
     <Grouping>
         <group>
@@ -3014,11 +3039,13 @@ p, li { white-space: pre-wrap; }
             <subgroup>
                 <subgroupName>Float Bike</subgroupName>
                 <subgroupParams>
-                    <param>::sep::Float Bike</param>
+                    <param>::sep::Current Limits</param>
                     <param>bike_max_current</param>
                     <param>bike_max_current_brake</param>
+                    <param>::sep::Throttle</param>
                     <param>ramp_time_pos</param>
                     <param>ramp_time_neg</param>
+                    <param>bike_brake_throttle_cutoff</param>
                     <param>::sep::Balance Button</param>
                     <param>fault_adc1</param>
                 </subgroupParams>

@@ -623,6 +623,11 @@
 #define BIKE_MAX_CURRENT_BRAKE -100
 #endif
 
+// Brake Throttle Cutoff
+#ifndef BIKE_BRAKE_THROTTLE_CUTOFF
+#define BIKE_BRAKE_THROTTLE_CUTOFF 0.5
+#endif
+
 // CONF_DEFAULT_H_
 #endif
 

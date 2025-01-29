@@ -1912,13 +1912,18 @@ static void float_thd(void *arg) {
 		///////////////////////////////////////////////////
 
 		// Float Bike
-        float brakes = VESC_IF->process_adc(1);     // ADC2 for brake
-		if (brakes > 0.02) {  // Prioritize brake over throttle
-			d->bike_throttle = -brakes;
-		} else {
-			float throttle = VESC_IF->process_adc(0);  // ADC1 for throttle
-			d->bike_throttle = throttle;
-		}
+        float throttle = VESC_IF->process_adc(0);  // ADC1 for throttle
+		float brakes = VESC_IF->process_adc(1);    // ADC2 for brake
+		        
+        if (brakes > 0.02) {  // Apply brake scaling logic when brakes are active
+            // Scale down throttle based on brake pressure up to BRAKE_THROTTLE_CUTOFF
+            float brake_scale = 1.0 - fminf(1.0, brakes / d->float_conf.bike_brake_throttle_cutoff);  // Linear scale from 1.0 to 0.0 as we approach cutoff threshold
+            float scaled_throttle = throttle * brake_scale;
+            // Combine scaled throttle with negative brakes
+            d->bike_throttle = scaled_throttle - brakes;
+        } else {
+            d->bike_throttle = throttle;
+        }
 
 
 

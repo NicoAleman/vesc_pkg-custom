@@ -134,6 +134,7 @@ int32_t confparser_serialize_float_config(uint8_t *buffer, const float_config *c
 	buffer_append_float32_auto(buffer, conf->ramp_time_neg, &ind);
 	buffer_append_int16(buffer, conf->bike_max_current, &ind);
 	buffer_append_int16(buffer, conf->bike_max_current_brake, &ind);
+	buffer_append_float32_auto(buffer, conf->bike_brake_throttle_cutoff, &ind);
 
 	return ind;
 }
@@ -270,6 +271,7 @@ bool confparser_deserialize_float_config(const uint8_t *buffer, float_config *co
 	conf->ramp_time_neg = buffer_get_float32_auto(buffer, &ind);
 	conf->bike_max_current = buffer_get_int16(buffer, &ind);
 	conf->bike_max_current_brake = buffer_get_int16(buffer, &ind);
+	conf->bike_brake_throttle_cutoff = buffer_get_float32_auto(buffer, &ind);
 
 	return true;
 }
@@ -399,5 +401,6 @@ void confparser_set_defaults_float_config(float_config *conf) {
 	conf->ramp_time_neg = APPCONF_FLOAT_BIKE_RAMP_TIME_NEG;
 	conf->bike_max_current = BIKE_MAX_CURRENT;
 	conf->bike_max_current_brake = BIKE_MAX_CURRENT_BRAKE;
+	conf->bike_brake_throttle_cutoff = BIKE_BRAKE_THROTTLE_CUTOFF;
 }
 
