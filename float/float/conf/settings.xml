@@ -346,7 +346,7 @@ p, li { white-space: pre-wrap; }
             <minInt>0</minInt>
             <showDisplay>0</showDisplay>
             <stepInt>50</stepInt>
-            <valInt>100</valInt>
+            <valInt>20</valInt>
             <suffix> ms</suffix>
             <vTx>3</vTx>
         </fault_delay_switch_half>
@@ -366,7 +366,7 @@ p, li { white-space: pre-wrap; }
             <minInt>0</minInt>
             <showDisplay>0</showDisplay>
             <stepInt>50</stepInt>
-            <valInt>250</valInt>
+            <valInt>20</valInt>
             <suffix> ms</suffix>
             <vTx>3</vTx>
         </fault_delay_switch_full>
@@ -1288,7 +1288,7 @@ p, li { white-space: pre-wrap; }
             <minDouble>0</minDouble>
             <showDisplay>0</showDisplay>
             <stepDouble>0.5</stepDouble>
-            <valDouble>45</valDouble>
+            <valDouble>30</valDouble>
             <vTxDoubleScale>100</vTxDoubleScale>
             <suffix> °</suffix>
             <vTx>7</vTx>
@@ -1671,7 +1671,7 @@ p, li { white-space: pre-wrap; }
             <minDouble>0</minDouble>
             <showDisplay>0</showDisplay>
             <stepDouble>0.05</stepDouble>
-            <valDouble>0</valDouble>
+            <valDouble>0.1</valDouble>
             <vTxDoubleScale>1000</vTxDoubleScale>
             <suffix> °/A</suffix>
             <vTx>7</vTx>
@@ -2614,7 +2614,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;For Initial Setup Only!&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use this option when you need to run the motor wizard or you want to troubleshoot your motor and run terminal commands. Riding won't be possible with this set to true.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>APPCONF_FLOAT_DISABLE</cDefine>
-            <valInt>0</valInt>
+            <valInt>1</valInt>
         </float_disable>
         <float_version>
             <longName>Package Version</longName>
@@ -2660,7 +2660,7 @@ p, li { white-space: pre-wrap; }
             <minDouble>0.001</minDouble>
             <showDisplay>0</showDisplay>
             <stepDouble>0.001</stepDouble>
-            <valDouble>0.005</valDouble>
+            <valDouble>0.003</valDouble>
             <vTxDoubleScale>10000</vTxDoubleScale>
             <suffix></suffix>
             <vTx>7</vTx>
@@ -2700,7 +2700,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Current Limit for Bike Throttle (Normal Bike Operation, NOT Self-Balancing)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>BIKE_MAX_CURRENT</cDefine>
             <editorScale>1</editorScale>
             <editAsPercentage>0</editAsPercentage>
@@ -2708,7 +2708,7 @@ p, li { white-space: pre-wrap; }
             <minInt>0</minInt>
             <showDisplay>0</showDisplay>
             <stepInt>10</stepInt>
-            <valInt>100</valInt>
+            <valInt>120</valInt>
             <suffix> A</suffix>
             <vTx>4</vTx>
         </bike_max_current>
@@ -2720,7 +2720,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Current Limit for Bike Brakes (Normal Bike Operation, NOT Self-Balancing)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>BIKE_MAX_CURRENT_BRAKE</cDefine>
             <editorScale>1</editorScale>
             <editAsPercentage>0</editAsPercentage>
@@ -2728,7 +2728,7 @@ p, li { white-space: pre-wrap; }
             <minInt>-1000</minInt>
             <showDisplay>0</showDisplay>
             <stepInt>10</stepInt>
-            <valInt>-100</valInt>
+            <valInt>-120</valInt>
             <suffix> A</suffix>
             <vTx>4</vTx>
         </bike_max_current_brake>
@@ -2758,18 +2758,28 @@ p, li { white-space: pre-wrap; }
             <suffix> %</suffix>
             <vTx>9</vTx>
         </bike_brake_throttle_cutoff>
-        <bike_button_enabled>
-            <longName>Enable Balance Button</longName>
-            <type>5</type>
+        <bike_balance_inputs>
+            <longName>Self-Balancing Inputs</longName>
+            <type>6</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
-            <cDefine>BIKE_BUTTON_ENABLED</cDefine>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Determine which inputs are capable of engaging Self-Balancing.&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt; Button: &lt;/span&gt;Can trigger at any angle, by just pushing button at any time&lt;/li&gt;
+&lt;li style=&quot;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-weight:600;&quot;&gt;Throttle:&lt;/span&gt; Can trigger when going past Pitch Startup Tolerance, as long as Throttle is greater than &lt;span style=&quot; font-style:italic;&quot;&gt;Throttle Threshold.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</description>
+            <cDefine>BIKE_BALANCE_INPUTS</cDefine>
             <valInt>0</valInt>
-        </bike_button_enabled>
+            <enumNames>Button</enumNames>
+            <enumNames>Throttle</enumNames>
+            <enumNames>Unused</enumNames>
+            <enumNames>Unused</enumNames>
+            <enumNames>Unused</enumNames>
+            <enumNames>Unused</enumNames>
+            <enumNames>Unused</enumNames>
+            <enumNames>Unused</enumNames>
+        </bike_balance_inputs>
         <bike_button_debounce_threshold>
             <longName>Button Debounce Threshold</longName>
             <type>2</type>
@@ -2793,16 +2803,14 @@ p, li { white-space: pre-wrap; }
             <vTx>1</vTx>
         </bike_button_debounce_threshold>
         <bike_throttle_threshold>
-            <longName>Throttle Balance Threshold</longName>
+            <longName>Throttle Threshold</longName>
             <type>1</type>
             <transmittable>1</transmittable>
             <description>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto'; ; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Throttle Value above which Self-Balancing will engage IF within the Pitch and Roll Startup Tolerance.&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Setting to 100% will Disable the throttle as a means of engaging self-balancing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Throttle Value above which Self-Balancing will engage IF within Roll Startup Tolerance and within (or beyond) Pitch Startup Tolerance&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</description>
             <cDefine>BIKE_THROTTLE_THRESHOLD</cDefine>
             <editorDecimalsDouble>0</editorDecimalsDouble>
             <editorScale>100</editorScale>
@@ -2811,7 +2819,7 @@ p, li { white-space: pre-wrap; }
             <minDouble>0</minDouble>
             <showDisplay>1</showDisplay>
             <stepDouble>10</stepDouble>
-            <valDouble>1</valDouble>
+            <valDouble>0.1</valDouble>
             <vTxDoubleScale>1000</vTxDoubleScale>
             <suffix> %</suffix>
             <vTx>7</vTx>
@@ -2943,7 +2951,7 @@ p, li { white-space: pre-wrap; }
         <ser>bike_brake_throttle_cutoff</ser>
         <ser>ramp_alpha_pos</ser>
         <ser>ramp_alpha_neg</ser>
-        <ser>bike_button_enabled</ser>
+        <ser>bike_balance_inputs</ser>
         <ser>bike_button_debounce_threshold</ser>
         <ser>bike_throttle_threshold</ser>
     </SerOrder>
@@ -3023,10 +3031,6 @@ p, li { white-space: pre-wrap; }
                     <param>::sep:: Brake Tiltback</param>
                     <param>braketilt_strength</param>
                     <param>braketilt_lingering</param>
-                    <param>::sep::Test</param>
-                    <param>atr_test1</param>
-                    <param>atr_test2</param>
-                    <param>atr_test3</param>
                 </subgroupParams>
             </subgroup>
             <subgroup>
@@ -3039,9 +3043,6 @@ p, li { white-space: pre-wrap; }
                     <param>startup_speed</param>
                     <param>::sep::Start Options</param>
                     <param>startup_click_current</param>
-                    <param>startup_simplestart_enabled</param>
-                    <param>startup_pushstart_enabled</param>
-                    <param>startup_dirtylandings_enabled</param>
                     <param>::sep::Holding</param>
                     <param>brake_current</param>
                 </subgroupParams>
@@ -3059,56 +3060,20 @@ p, li { white-space: pre-wrap; }
                     <param>fault_delay_switch_full</param>
                     <param>fault_adc_half_erpm</param>
                     <param>fault_is_dual_switch</param>
-                    <param>fault_moving_fault_disabled</param>
-                    <param>::sep::Features</param>
-                    <param>fault_darkride_enabled</param>
-                    <param>fault_reversestop_enabled</param>
                 </subgroupParams>
             </subgroup>
             <subgroup>
-                <subgroupName>Alerts/Pushback</subgroupName>
+                <subgroupName>Alerts</subgroupName>
                 <subgroupParams>
-                    <param>::sep::General Config</param>
-                    <param>tiltback_return_speed</param>
+                    <param>::sep::Haptic Buzz</param>
                     <param>haptic_buzz_intensity</param>
                     <param>haptic_buzz_min</param>
-                    <param>::sep::Duty Cycle Alert Pushback</param>
-                    <param>tiltback_duty</param>
-                    <param>tiltback_duty_angle</param>
-                    <param>tiltback_duty_speed</param>
-                    <param>haptic_buzz_duty</param>
-                    <param>is_dutybeep_enabled</param>
-                    <param>::sep::Duty Surge</param>
-                    <param>surge_duty_start</param>
-                    <param>surge_angle</param>
-                    <param>is_surgebeep_enabled</param>
-                    <param>::sep::High Voltage Alert Pushback</param>
-                    <param>tiltback_hv_angle</param>
-                    <param>tiltback_hv_speed</param>
+                    <param>::sep::Voltage Alert</param>
                     <param>haptic_buzz_hv</param>
-                    <param>::sep::Low Voltage Alert Pushback</param>
-                    <param>tiltback_lv_angle</param>
-                    <param>tiltback_lv_speed</param>
                     <param>haptic_buzz_lv</param>
                     <param>::sep::Other Alerts</param>
                     <param>haptic_buzz_temp</param>
                     <param>haptic_buzz_current</param>
-                    <param>haptic_buzz_bms</param>
-                </subgroupParams>
-            </subgroup>
-            <subgroup>
-                <subgroupName>Remote</subgroupName>
-                <subgroupParams>
-                    <param>::sep::Remote Tiltback</param>
-                    <param>inputtilt_remote_type</param>
-                    <param>inputtilt_angle_limit</param>
-                    <param>inputtilt_speed</param>
-                    <param>inputtilt_smoothing_factor</param>
-                    <param>inputtilt_invert_throttle</param>
-                    <param>inputtilt_deadband</param>
-                    <param>::sep::Remote Throttle</param>
-                    <param>remote_throttle_current_max</param>
-                    <param>remote_throttle_grace_period</param>
                 </subgroupParams>
             </subgroup>
             <subgroup>
@@ -3122,7 +3087,7 @@ p, li { white-space: pre-wrap; }
                     <param>ramp_alpha_neg</param>
                     <param>bike_brake_throttle_cutoff</param>
                     <param>::sep::Self-Balancing</param>
-                    <param>bike_button_enabled</param>
+                    <param>bike_balance_inputs</param>
                     <param>bike_throttle_threshold</param>
                     <param>bike_button_debounce_threshold</param>
                 </subgroupParams>
@@ -3135,18 +3100,9 @@ p, li { white-space: pre-wrap; }
                     <param>float_disable</param>
                     <param>::sep::Balance Loop</param>
                     <param>hertz</param>
-                    <param>::sep::Voltage Tiltbacks</param>
+                    <param>::sep::Voltage Thresholds</param>
                     <param>tiltback_hv</param>
                     <param>tiltback_lv</param>
-                    <param>::sep::Foot Sensors</param>
-                    <param>is_footbeep_enabled</param>
-                    <param>::sep::Miscellaneous</param>
-                    <param>dark_pitch_offset</param>
-                    <param>is_beeper_enabled</param>
-                    <param>::sep::Current Limiting</param>
-                    <param>limit_current_accel</param>
-                    <param>limit_current_brake</param>
-                    <param>limit_current_cont</param>
                 </subgroupParams>
             </subgroup>
         </group>

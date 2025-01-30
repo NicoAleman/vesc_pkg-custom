@@ -70,12 +70,12 @@
 
 // Half Switch Fault Delay
 #ifndef APPCONF_FLOAT_FAULT_DELAY_SWITCH_HALF
-#define APPCONF_FLOAT_FAULT_DELAY_SWITCH_HALF 100
+#define APPCONF_FLOAT_FAULT_DELAY_SWITCH_HALF 20
 #endif
 
 // Full Switch Fault Delay
 #ifndef APPCONF_FLOAT_FAULT_DELAY_SWITCH_FULL
-#define APPCONF_FLOAT_FAULT_DELAY_SWITCH_FULL 250
+#define APPCONF_FLOAT_FAULT_DELAY_SWITCH_FULL 20
 #endif
 
 // ADC Half State Fault ERPM
@@ -290,7 +290,7 @@
 
 // Startup Roll Axis Angle Tolerance
 #ifndef APPCONF_FLOAT_STARTUP_ROLL_TOLERANCE
-#define APPCONF_FLOAT_STARTUP_ROLL_TOLERANCE 45
+#define APPCONF_FLOAT_STARTUP_ROLL_TOLERANCE 30
 #endif
 
 // Startup Centering Speed
@@ -380,7 +380,7 @@
 
 // Strength
 #ifndef APPCONF_FLOAT_TORQUETILT_STRENGTH
-#define APPCONF_FLOAT_TORQUETILT_STRENGTH 0
+#define APPCONF_FLOAT_TORQUETILT_STRENGTH 0.1
 #endif
 
 // Strength (Regen)
@@ -595,7 +595,7 @@
 
 // Disable Float Package
 #ifndef APPCONF_FLOAT_DISABLE
-#define APPCONF_FLOAT_DISABLE 0
+#define APPCONF_FLOAT_DISABLE 1
 #endif
 
 // Package Version
@@ -605,12 +605,12 @@
 
 // Max Current
 #ifndef BIKE_MAX_CURRENT
-#define BIKE_MAX_CURRENT 100
+#define BIKE_MAX_CURRENT 120
 #endif
 
 // Max Brake Current
 #ifndef BIKE_MAX_CURRENT_BRAKE
-#define BIKE_MAX_CURRENT_BRAKE -100
+#define BIKE_MAX_CURRENT_BRAKE -120
 #endif
 
 // Brake Throttle Cutoff
@@ -620,7 +620,7 @@
 
 // Positive Ramping Alpha
 #ifndef APPCONF_FLOAT_BIKE_RAMP_ALPHA_POS
-#define APPCONF_FLOAT_BIKE_RAMP_ALPHA_POS 0.005
+#define APPCONF_FLOAT_BIKE_RAMP_ALPHA_POS 0.003
 #endif
 
 // Negative Ramping Alpha
@@ -628,9 +628,9 @@
 #define APPCONF_FLOAT_BIKE_RAMP_ALPHA_NEG 0.02
 #endif
 
-// Enable Balance Button
-#ifndef BIKE_BUTTON_ENABLED
-#define BIKE_BUTTON_ENABLED 0
+// Self-Balancing Inputs
+#ifndef BIKE_BALANCE_INPUTS
+#define BIKE_BALANCE_INPUTS 0
 #endif
 
 // Button Debounce Threshold
@@ -638,9 +638,9 @@
 #define BIKE_BUTTON_DEBOUNCE_THRESHOLD 20
 #endif
 
-// Throttle Balance Threshold
+// Throttle Threshold
 #ifndef BIKE_THROTTLE_THRESHOLD
-#define BIKE_THROTTLE_THRESHOLD 1
+#define BIKE_THROTTLE_THRESHOLD 0.1
 #endif
 
 // CONF_DEFAULT_H_

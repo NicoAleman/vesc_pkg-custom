@@ -22,9 +22,12 @@ FootpadSensorState footpad_sensor_state_evaluate(const FootpadSensor *fs, const 
 	// 	}
 	// }
 
-	if (config->bike_button_enabled && fs->pb12) {
+	bool button_enabled = config->bike_balance_inputs & 1;
+	bool throttle_enabled = config->bike_balance_inputs & 2;
+
+	if (button_enabled && fs->pb12) {
 		return FS_BUTTON;
-	} else if ((config->bike_throttle_threshold < 1) && (fs->throttle > config->bike_throttle_threshold)) {
+	} else if (throttle_enabled && (fs->throttle > config->bike_throttle_threshold)) {
 		return FS_THROTTLE;
 	}
 

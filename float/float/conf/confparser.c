@@ -135,7 +135,7 @@ int32_t confparser_serialize_float_config(uint8_t *buffer, const float_config *c
 	buffer_append_float32_auto(buffer, conf->bike_brake_throttle_cutoff, &ind);
 	buffer_append_float16(buffer, conf->ramp_alpha_pos, 10000, &ind);
 	buffer_append_float16(buffer, conf->ramp_alpha_neg, 10000, &ind);
-	buffer[ind++] = conf->bike_button_enabled;
+	buffer[ind++] = conf->bike_balance_inputs;
 	buffer[ind++] = (uint8_t)conf->bike_button_debounce_threshold;
 	buffer_append_float16(buffer, conf->bike_throttle_threshold, 1000, &ind);
 
@@ -275,7 +275,7 @@ bool confparser_deserialize_float_config(const uint8_t *buffer, float_config *co
 	conf->bike_brake_throttle_cutoff = buffer_get_float32_auto(buffer, &ind);
 	conf->ramp_alpha_pos = buffer_get_float16(buffer, 10000, &ind);
 	conf->ramp_alpha_neg = buffer_get_float16(buffer, 10000, &ind);
-	conf->bike_button_enabled = buffer[ind++];
+	conf->bike_balance_inputs = buffer[ind++];
 	conf->bike_button_debounce_threshold = buffer[ind++];
 	conf->bike_throttle_threshold = buffer_get_float16(buffer, 1000, &ind);
 
@@ -408,7 +408,7 @@ void confparser_set_defaults_float_config(float_config *conf) {
 	conf->bike_brake_throttle_cutoff = BIKE_BRAKE_THROTTLE_CUTOFF;
 	conf->ramp_alpha_pos = APPCONF_FLOAT_BIKE_RAMP_ALPHA_POS;
 	conf->ramp_alpha_neg = APPCONF_FLOAT_BIKE_RAMP_ALPHA_NEG;
-	conf->bike_button_enabled = BIKE_BUTTON_ENABLED;
+	conf->bike_balance_inputs = BIKE_BALANCE_INPUTS;
 	conf->bike_button_debounce_threshold = BIKE_BUTTON_DEBOUNCE_THRESHOLD;
 	conf->bike_throttle_threshold = BIKE_THROTTLE_THRESHOLD;
 }

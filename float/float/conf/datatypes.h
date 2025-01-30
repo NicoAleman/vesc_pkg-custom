@@ -168,7 +168,7 @@ typedef struct {
 	float bike_brake_throttle_cutoff;
 	float ramp_alpha_pos;
 	float ramp_alpha_neg;
-	bool bike_button_enabled;
+	uint8_t bike_balance_inputs;
 	uint8_t bike_button_debounce_threshold;
 	float bike_throttle_threshold;
 } float_config;
