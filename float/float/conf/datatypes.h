@@ -170,6 +170,7 @@ typedef struct {
 	float ramp_alpha_neg;
 	bool bike_button_enabled;
 	uint8_t bike_button_debounce_threshold;
+	float bike_throttle_threshold;
 } float_config;
 
 // DATATYPES_H_

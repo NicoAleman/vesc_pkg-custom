@@ -22,10 +22,10 @@ FootpadSensorState footpad_sensor_state_evaluate(const FootpadSensor *fs, const 
 	// 	}
 	// }
 
-	if (!config->bike_button_enabled) { // Disable Balance Button
-		return FS_NONE;
-	} else if (fs->pb12) {
-		return FS_BOTH;
+	if (config->bike_button_enabled && fs->pb12) {
+		return FS_BUTTON;
+	} else if ((config->bike_throttle_threshold < 1) && (fs->throttle > config->bike_throttle_threshold)) {
+		return FS_THROTTLE;
 	}
 
 	return FS_NONE;
@@ -48,6 +48,9 @@ void footpad_sensor_update(FootpadSensor *fs, const float_config *config) {
 	// Only update pb12 value when debounced
 	fs->pb12 = (fs->debounce_counter >= config->bike_button_debounce_threshold);
 
+	// Track processed throttle value for engaging balance with throttle
+	fs->throttle = VESC_IF->process_adc(0);
+
 	// Update ADC values as normal
 	fs->adc1 = VESC_IF->io_read_analog(VESC_PIN_ADC1);
 	fs->adc2 = VESC_IF->io_read_analog(VESC_PIN_ADC2);
@@ -58,10 +61,11 @@ void footpad_sensor_update(FootpadSensor *fs, const float_config *config) {
 
 int footpad_sensor_state_to_switch_compat(FootpadSensorState v) {
 	switch (v) {
-	case FS_BOTH:
+	case FS_BUTTON:
 		return 2;
 	case FS_LEFT:
 	case FS_RIGHT:
+	case FS_THROTTLE:
 		return 1;
 	case FS_NONE:
 	default:

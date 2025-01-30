@@ -285,7 +285,7 @@
 
 // Startup Pitch Axis Angle Tolerance
 #ifndef APPCONF_FLOAT_STARTUP_PITCH_TOLERANCE
-#define APPCONF_FLOAT_STARTUP_PITCH_TOLERANCE 3
+#define APPCONF_FLOAT_STARTUP_PITCH_TOLERANCE 6
 #endif
 
 // Startup Roll Axis Angle Tolerance
@@ -600,7 +600,7 @@
 
 // Package Version
 #ifndef APPCONF_FLOAT_VERSION
-#define APPCONF_FLOAT_VERSION 2.05
+#define APPCONF_FLOAT_VERSION 2.06
 #endif
 
 // Max Current
@@ -636,6 +636,11 @@
 // Button Debounce Threshold
 #ifndef BIKE_BUTTON_DEBOUNCE_THRESHOLD
 #define BIKE_BUTTON_DEBOUNCE_THRESHOLD 20
+#endif
+
+// Throttle Balance Threshold
+#ifndef BIKE_THROTTLE_THRESHOLD
+#define BIKE_THROTTLE_THRESHOLD 1
 #endif
 
 // CONF_DEFAULT_H_

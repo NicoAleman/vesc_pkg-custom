@@ -743,165 +743,128 @@ static float get_setpoint_adjustment_step_size(data *d) {
 	return 0;
 }
 
-bool is_engaged(const data *d) {
-	if (d->footpad_sensor.state == FS_BOTH) {
+bool button_is_engaged(const data *d) {
+	if (d->footpad_sensor.state == FS_BUTTON) {
 		return true;
 	}
 
-	if (d->footpad_sensor.state == FS_LEFT || d->footpad_sensor.state == FS_RIGHT) {
-		// 5 seconds after stopping we allow starting with a single sensor (e.g. for jump starts)
-		bool is_simple_start = d->float_conf.startup_simplestart_enabled &&
-			(d->current_time - d->disengage_timer > 5);
+	// if (d->footpad_sensor.state == FS_LEFT || d->footpad_sensor.state == FS_RIGHT) {
+	// 	// 5 seconds after stopping we allow starting with a single sensor (e.g. for jump starts)
+	// 	bool is_simple_start = d->float_conf.startup_simplestart_enabled &&
+	// 		(d->current_time - d->disengage_timer > 5);
 
-		if (d->float_conf.fault_is_dual_switch || is_simple_start) {
-			return true;
-		}
-	}
+	// 	if (d->float_conf.fault_is_dual_switch || is_simple_start) {
+	// 		return true;
+	// 	}
+	// }
 
-	// Keep the board engaged in flywheel mode
-	if (d->is_flywheel_mode) {
+	// // Keep the board engaged in flywheel mode
+	// if (d->is_flywheel_mode) {
+	// 	return true;
+	// }
+
+	return false;
+}
+
+bool throttle_is_engaged(const data *d) {
+	if (d->footpad_sensor.state == FS_THROTTLE) {
 		return true;
 	}
-
 	return false;
 }
 
 // Fault checking order does not really matter. From a UX perspective, switch should be before angle.
 static bool check_faults(data *d){
-	// Aggressive reverse stop in case the board runs off when upside down
-	if (d->is_upside_down) {
-		if (d->erpm > 1000) {
-			// erpms are also reversed when upside down!
-			if (((d->current_time - d->fault_switch_timer) * 1000 > 100) ||
-				(d->erpm > 2000) ||
-				((d->state == RUNNING_WHEELSLIP) && (d->current_time - d->delay_upside_down_fault > 1) &&
-				 ((d->current_time - d->fault_switch_timer) * 1000 > 30)) ) {
+	// // Aggressive reverse stop in case the board runs off when upside down
+	// if (d->is_upside_down) {
+	// 	if (d->erpm > 1000) {
+	// 		// erpms are also reversed when upside down!
+	// 		if (((d->current_time - d->fault_switch_timer) * 1000 > 100) ||
+	// 			(d->erpm > 2000) ||
+	// 			((d->state == RUNNING_WHEELSLIP) && (d->current_time - d->delay_upside_down_fault > 1) &&
+	// 			 ((d->current_time - d->fault_switch_timer) * 1000 > 30)) ) {
 				
-				// Trigger FAULT_REVERSE when board is going reverse AND
-				// going > 2mph for more than 100ms
-				// going > 4mph
-				// detecting wheelslip (aka excorcist wiggle) after the first second
-				d->state = FAULT_REVERSE;
+	// 			// Trigger FAULT_REVERSE when board is going reverse AND
+	// 			// going > 2mph for more than 100ms
+	// 			// going > 4mph
+	// 			// detecting wheelslip (aka excorcist wiggle) after the first second
+	// 			d->state = FAULT_REVERSE;
+	// 			return true;
+	// 		}
+	// 	}
+	// 	else {
+	// 		d->fault_switch_timer = d->current_time;
+	// 		if (d->erpm > 300) {
+	// 			// erpms are also reversed when upside down!
+	// 			if ((d->current_time - d->fault_angle_roll_timer) * 1000 > 500){
+	// 				d->state = FAULT_REVERSE;
+	// 				return true;
+	// 			}
+	// 		}
+	// 		else {
+	// 			d->fault_angle_roll_timer = d->current_time;
+	// 		}
+	// 	}
+	// 	if (button_is_engaged(d)) {
+	// 		// allow turning it off by engaging foot sensors
+	// 		d->state = FAULT_SWITCH_HALF;
+	// 		return true;
+	// 	}
+	// }
+	// else {
+	bool disable_switch_faults = false; // FLOAT BIKE: No Disable Moving Faults
+		// d->float_conf.fault_moving_fault_disabled &&
+		// d->erpm > (d->float_conf.fault_adc_half_erpm * 2) && // Rolling forward (not backwards!)
+		// fabsf(d->roll_angle) < 40; // Not tipped over
+
+	// Check switch
+	// Switch fully open
+	if (d->footpad_sensor.state == FS_NONE) {
+		if((1000.0 * (d->current_time - d->fault_switch_timer)) > d->float_conf.fault_delay_switch_full){
+			d->state = FAULT_SWITCH_FULL;
+			return true;
+		}
+		// low speed (below 6 x half-fault threshold speed):
+		else if ((d->abs_erpm < d->float_conf.fault_adc_half_erpm * 6)
+			&& (1000.0 * (d->current_time - d->fault_switch_timer) > d->float_conf.fault_delay_switch_half)){
+			d->state = FAULT_SWITCH_FULL;
+			return true;
+		}
+	} else {
+		d->fault_switch_timer = d->current_time;
+	}
+
+	// Switch partially open and stopped
+	if(!d->float_conf.fault_is_dual_switch) {
+		if(!button_is_engaged(d) && !throttle_is_engaged(d) && d->abs_erpm < d->float_conf.fault_adc_half_erpm){
+			if ((1000.0 * (d->current_time - d->fault_switch_half_timer)) > d->float_conf.fault_delay_switch_half){
+				d->state = FAULT_SWITCH_HALF;
 				return true;
 			}
+		} else {
+			d->fault_switch_half_timer = d->current_time;
 		}
-		else {
-			d->fault_switch_timer = d->current_time;
-			if (d->erpm > 300) {
-				// erpms are also reversed when upside down!
-				if ((d->current_time - d->fault_angle_roll_timer) * 1000 > 500){
-					d->state = FAULT_REVERSE;
-					return true;
-				}
-			}
-			else {
-				d->fault_angle_roll_timer = d->current_time;
-			}
+	}
+
+	// Check roll angle
+	if (fabsf(d->roll_angle) > d->float_conf.fault_roll) {
+		if ((1000.0 * (d->current_time - d->fault_angle_roll_timer)) > d->float_conf.fault_delay_roll) {
+			d->state = FAULT_ANGLE_ROLL;
+			return true;
 		}
-		if (is_engaged(d)) {
-			// allow turning it off by engaging foot sensors
+	} else {
+		d->fault_angle_roll_timer = d->current_time;
+	}
+
+	if (d->is_flywheel_mode && d->flywheel_allow_abort) {
+		FootpadSensorState state = footpad_sensor_state_evaluate(&d->footpad_sensor, &d->float_conf, true);
+		if (state == FS_BUTTON) {
 			d->state = FAULT_SWITCH_HALF;
+			d->flywheel_abort = true;
 			return true;
 		}
 	}
-	else {
-		bool disable_switch_faults = d->float_conf.fault_moving_fault_disabled &&
-									 d->erpm > (d->float_conf.fault_adc_half_erpm * 2) && // Rolling forward (not backwards!)
-									 fabsf(d->roll_angle) < 40; // Not tipped over
-
-		// Check switch
-		// Switch fully open
-		if (d->footpad_sensor.state == FS_NONE && !d->is_flywheel_mode) {
-			if (!disable_switch_faults) {
-				if((1000.0 * (d->current_time - d->fault_switch_timer)) > d->float_conf.fault_delay_switch_full){
-					d->state = FAULT_SWITCH_FULL;
-					return true;
-				}
-				// low speed (below 6 x half-fault threshold speed):
-				else if ((d->abs_erpm < d->float_conf.fault_adc_half_erpm * 6)
-					&& (1000.0 * (d->current_time - d->fault_switch_timer) > d->float_conf.fault_delay_switch_half)){
-					d->state = FAULT_SWITCH_FULL;
-					return true;
-				}
-			}
-			
-			if ((d->abs_erpm < d->quickstop_erpm) && (fabsf(d->true_pitch_angle) > 14) && (fabsf(d->inputtilt_interpolated) < 30) && (SIGN(d->true_pitch_angle) == SIGN(d->erpm))) {
-				// QUICK STOP
-				d->state = FAULT_QUICKSTOP;
-				return true;
-			}
-		} else {
-			d->fault_switch_timer = d->current_time;
-		}
-
-		// Feature: Reverse-Stop
-		if(d->setpointAdjustmentType == REVERSESTOP){
-			//  Taking your foot off entirely while reversing? Ignore delays
-			if (d->footpad_sensor.state == FS_NONE) {
-				d->state = FAULT_SWITCH_FULL;
-				return true;
-			}
-			if (fabsf(d->true_pitch_angle) > 15) {
-				d->state = FAULT_REVERSE;
-				return true;
-			}
-			// Above 10 degrees for a half a second? Switch it off
-			if ((fabsf(d->true_pitch_angle) > 10) && (d->current_time - d->reverse_timer > .5)) {
-				d->state = FAULT_REVERSE;
-				return true;
-			}
-			// Above 5 degrees for a full second? Switch it off
-			if ((fabsf(d->true_pitch_angle) > 5) && (d->current_time - d->reverse_timer > 1)) {
-				d->state = FAULT_REVERSE;
-				return true;
-			}
-			if (d->reverse_total_erpm > d->reverse_tolerance * 3) {
-				d->state = FAULT_REVERSE;
-				return true;
-			}
-			if (fabsf(d->true_pitch_angle) < 5) {
-				d->reverse_timer = d->current_time;
-			}
-		}
-
-		// Switch partially open and stopped
-		if(!d->float_conf.fault_is_dual_switch) {
-			if(!is_engaged(d) && d->abs_erpm < d->float_conf.fault_adc_half_erpm){
-				if ((1000.0 * (d->current_time - d->fault_switch_half_timer)) > d->float_conf.fault_delay_switch_half){
-					d->state = FAULT_SWITCH_HALF;
-					return true;
-				}
-			} else {
-				d->fault_switch_half_timer = d->current_time;
-			}
-		}
-
-		// Check roll angle
-		if (fabsf(d->roll_angle) > d->float_conf.fault_roll) {
-			if ((1000.0 * (d->current_time - d->fault_angle_roll_timer)) > d->float_conf.fault_delay_roll) {
-				d->state = FAULT_ANGLE_ROLL;
-				return true;
-			}
-		} else {
-			d->fault_angle_roll_timer = d->current_time;
-
-			if (d->float_conf.fault_darkride_enabled) {
-				if((fabsf(d->roll_angle) > 100) && (fabsf(d->roll_angle) < 135)) {
-					d->state = FAULT_ANGLE_ROLL;
-					return true;
-				}
-			}
-		}
-
-		if (d->is_flywheel_mode && d->flywheel_allow_abort) {
-			FootpadSensorState state = footpad_sensor_state_evaluate(&d->footpad_sensor, &d->float_conf, true);
-			if (state == FS_BOTH) {
-				d->state = FAULT_SWITCH_HALF;
-				d->flywheel_abort = true;
-				return true;
-			}
-		}
-	}
+	// }
 
 	// Check pitch angle
 	if ((fabsf(d->true_pitch_angle) > d->float_conf.fault_pitch) && (fabsf(d->inputtilt_interpolated) < 30)) {
@@ -928,23 +891,6 @@ static void calculate_setpoint_target(data *d) {
 	if (d->setpointAdjustmentType == CENTERING && d->setpoint_target_interpolated != d->setpoint_target) {
 		// Ignore tiltback during centering sequence
 		d->state = RUNNING;
-	} else if (d->setpointAdjustmentType == REVERSESTOP) {
-		// accumalete erpms:
-		d->reverse_total_erpm += d->erpm;
-		if (fabsf(d->reverse_total_erpm) > d->reverse_tolerance) {
-			// tilt down by 10 degrees after 50k aggregate erpm
-			d->setpoint_target = 10 * (fabsf(d->reverse_total_erpm) - d->reverse_tolerance) / 50000;
-		}
-		else {
-			if (fabsf(d->reverse_total_erpm) <= d->reverse_tolerance / 2) {
-				if (d->erpm >= 0){
-					d->setpointAdjustmentType = TILTBACK_NONE;
-					d->reverse_total_erpm = 0;
-					d->setpoint_target = 0;
-					d->pid_integral = 0;
-				}
-			}
-		}
 	} else if ((fabsf(d->acceleration) > 15) &&					// this isn't normal, either wheelslip or wheel getting stuck
 			  (SIGN(d->acceleration) == SIGN(d->erpm)) &&		// we only act on wheelslip, not when the wheel gets stuck
 			  (d->abs_duty_cycle > 0.3) &&
@@ -971,12 +917,6 @@ static void calculate_setpoint_target(data *d) {
 				d->traction_control = false;
 				d->state = RUNNING;
 			}
-		}
-		if (d->float_conf.fault_reversestop_enabled && (d->erpm < 0)) {
-			// the 500ms wheelslip time can cause us to blow past the reverse stop condition!
-			d->setpointAdjustmentType = REVERSESTOP;
-			d->reverse_timer = d->current_time;
-			d->reverse_total_erpm = 0;
 		}
 	} else if (d->abs_duty_cycle > d->float_conf.tiltback_duty) {
 		if (d->erpm > 0) {
@@ -1068,15 +1008,7 @@ static void calculate_setpoint_target(data *d) {
 			d->state = RUNNING;
 		}
 	} else {
-		// Normal running
-		if (d->float_conf.fault_reversestop_enabled && (d->erpm < -200) && !d->is_upside_down) {
-			d->setpointAdjustmentType = REVERSESTOP;
-			d->reverse_timer = d->current_time;
-			d->reverse_total_erpm = 0;
-		}
-		else {
-			d->setpointAdjustmentType = TILTBACK_NONE;
-		}
+		d->setpointAdjustmentType = TILTBACK_NONE;
 		d->setpoint_target = 0;
 		d->state = RUNNING;
 	}
@@ -1831,20 +1763,20 @@ static void float_thd(void *arg) {
 		d->abs_roll_angle = fabsf(d->roll_angle);
 		d->abs_roll_angle_sin = sinf(DEG2RAD_f(d->abs_roll_angle));
 
-		// Darkride:
-		if (d->float_conf.fault_darkride_enabled) {
-			if (d->is_upside_down) {
-				if (d->abs_roll_angle < 120) {
-					d->is_upside_down = false;
-				}
-			} else if (d->enable_upside_down) {
-				if (d->abs_roll_angle > 150) {
-					d->is_upside_down = true;
-					d->is_upside_down_started = false;
-					d->pitch_angle = -d->pitch_angle;
-				}
-			}
-		}
+		// // Darkride:
+		// if (d->float_conf.fault_darkride_enabled) {
+		// 	if (d->is_upside_down) {
+		// 		if (d->abs_roll_angle < 120) {
+		// 			d->is_upside_down = false;
+		// 		}
+		// 	} else if (d->enable_upside_down) {
+		// 		if (d->abs_roll_angle > 150) {
+		// 			d->is_upside_down = true;
+		// 			d->is_upside_down_started = false;
+		// 			d->pitch_angle = -d->pitch_angle;
+		// 		}
+		// 	}
+		// }
 
 		d->last_pitch_angle = d->pitch_angle;
 
@@ -1975,7 +1907,7 @@ static void float_thd(void *arg) {
 
 		footpad_sensor_update(&d->footpad_sensor, &d->float_conf);
 
-		int float_state = (d->is_flywheel_mode && (d->state <= RUNNING_TILTBACK)) ? RUNNING_FLYWHEEL : d->state;
+		int float_state = /*( (d->is_flywheel_mode && (d->state <= RUNNING_TILTBACK)) ? RUNNING_FLYWHEEL : */d->state;
 		int switch_state = footpad_sensor_state_to_switch_compat(d->footpad_sensor.state);
 		led_update(&d->led_data, &d->float_conf, d->current_time, d->erpm, d->abs_duty_cycle, switch_state, float_state);
 
@@ -2039,7 +1971,7 @@ static void float_thd(void *arg) {
 			}
 			d->odometer_dirty = 1;
 			
-			d->enable_upside_down = true;
+			// d->enable_upside_down = true;
 			d->disengage_timer = d->current_time;
 
 			// Calculate setpoint and interpolation
@@ -2084,10 +2016,6 @@ static void float_thd(void *arg) {
 			// Apply I term Filter
 			if (d->float_conf.ki_limit > 0 && fabsf(d->pid_integral) > d->float_conf.ki_limit) {
 				d->pid_integral = d->float_conf.ki_limit * SIGN(d->pid_integral);
-			}
-			// Quickly ramp down integral component during reverse stop
-			if (d->setpointAdjustmentType == REVERSESTOP) {
-				d->pid_integral = d->pid_integral * 0.9;
 			}
 
 			// Apply P Brake Scaling
@@ -2313,40 +2241,51 @@ static void float_thd(void *arg) {
 
 			check_odometer(d);
 
-			// Check for valid startup position and switch state
-			if (fabsf(d->pitch_angle) < d->startup_pitch_tolerance &&
-				fabsf(d->roll_angle) < d->float_conf.startup_roll_tolerance && 
-				is_engaged(d)) {
+			// BUTTON ENGAGE: Allow if Button is pressed and Bike is within Roll Fault Threshold (any angle otherwise)
+			if (button_is_engaged(d) &&
+				/* fabsf(d->true_pitch_angle) < d->float_conf.fault_pitch && */
+				fabsf(d->roll_angle) < d->float_conf.fault_roll) {
 				reset_vars(d);
 				break;
 			}
-			// Ignore roll for the first second while it's upside down
-			if(d->is_upside_down && (fabsf(d->pitch_angle) < d->startup_pitch_tolerance)) {
-				if ((d->current_time - d->disengage_timer) > 1) {
-					// after 1 second:
-					if (fabsf(fabsf(d->roll_angle) - 180) < d->float_conf.startup_roll_tolerance) {
-						reset_vars(d);
-						break;
-					}
-				}
-				else {
-					// 1 second or less, ignore roll-faults to allow for kick flips etc.
-					if (d->state != FAULT_REVERSE) {
-						// don't instantly re-engage after a reverse fault!
-						reset_vars(d);
-						break;
-					}
-				}
+
+			// THROTTLE ENGAGE: Allow if Throttle is beyond threshold and Bike is within Roll Startup Tolerance and past Pitch Startup Tolerance
+			// * Can still engage at any Pitch beyond level, below Pitch Fault Threshold
+			if (throttle_is_engaged(d) &&
+				d->pitch_angle > -d->startup_pitch_tolerance &&
+				d->pitch_angle < d->float_conf.fault_pitch &&
+				fabsf(d->roll_angle) < d->float_conf.startup_roll_tolerance) {
+				reset_vars(d);
+				break;
 			}
-			// Push-start aka dirty landing Part II
-			if(d->float_conf.startup_pushstart_enabled && (d->abs_erpm > 1000) && is_engaged(d)) {
-				if ((fabsf(d->pitch_angle) < 45) && (fabsf(d->roll_angle) < 45)) {
-					// 45 to prevent board engaging when upright or laying sideways
-					// 45 degree tolerance is more than plenty for tricks / extreme mounts
-					reset_vars(d);
-					break;
-				}
-			}
+
+			// // Ignore roll for the first second while it's upside down
+			// if(d->is_upside_down && (fabsf(d->pitch_angle) < d->startup_pitch_tolerance)) {
+			// 	if ((d->current_time - d->disengage_timer) > 1) {
+			// 		// after 1 second:
+			// 		if (fabsf(fabsf(d->roll_angle) - 180) < d->float_conf.startup_roll_tolerance) {
+			// 			reset_vars(d);
+			// 			break;
+			// 		}
+			// 	}
+			// 	else {
+			// 		// 1 second or less, ignore roll-faults to allow for kick flips etc.
+			// 		if (d->state != FAULT_REVERSE) {
+			// 			// don't instantly re-engage after a reverse fault!
+			// 			reset_vars(d);
+			// 			break;
+			// 		}
+			// 	}
+			// }
+			// // Push-start aka dirty landing Part II
+			// if(d->float_conf.startup_pushstart_enabled && (d->abs_erpm > 1000) && button_is_engaged(d)) {
+			// 	if ((fabsf(d->pitch_angle) < 45) && (fabsf(d->roll_angle) < 45)) {
+			// 		// 45 to prevent board engaging when upright or laying sideways
+			// 		// 45 degree tolerance is more than plenty for tricks / extreme mounts
+			// 		reset_vars(d);
+			// 		break;
+			// 	}
+			// }
 
 			if ((d->current_time - d->disengage_timer) < 0.008) {
 				// 20ms brake buzz, single tone
@@ -2533,7 +2472,7 @@ static void send_realtime_data(data *d){
 
 	uint8_t state = (d->state & 0xF);
 	if ((d->is_flywheel_mode) && (d->state > 0) && (d->state < 6)) {
-		state = RUNNING_FLYWHEEL;
+		// state = RUNNING_FLYWHEEL;
 	}
 	send_buffer[ind++] = (state & 0xF) + (d->setpointAdjustmentType << 4);
 	state = footpad_sensor_state_to_switch_compat(d->footpad_sensor.state);
@@ -2598,7 +2537,7 @@ static void cmd_send_all_data(data *d, unsigned char mode){
 
 		uint8_t state = (d->state & 0xF) + (d->setpointAdjustmentType << 4);
 		if ((d->is_flywheel_mode) && (d->state > 0) && (d->state < 6)) {
-			state = RUNNING_FLYWHEEL;
+			// state = RUNNING_FLYWHEEL;
 		}
 		send_buffer[ind++] = state;
 
@@ -3168,7 +3107,7 @@ static void cmd_lcm_poll(data *d, unsigned char *cfg, int len)
 
 	uint8_t state = (d->state & 0xF);
 	if ((d->is_flywheel_mode) && (d->state > 0) && (d->state < 6)) {
-		state = RUNNING_FLYWHEEL;
+		// state = RUNNING_FLYWHEEL;
 	}
 	state += d->footpad_sensor.state << 4;
 	if (d->do_handtest) {

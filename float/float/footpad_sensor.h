@@ -6,12 +6,13 @@ typedef enum {
 	FS_NONE = 0,
 	FS_LEFT = 1,
 	FS_RIGHT = 2,
-	FS_BOTH = 3
+	FS_BUTTON = 3,
+	FS_THROTTLE = 4
 } FootpadSensorState;
 
 typedef struct {
 	bool pb12;
-	float adc1, adc2;
+	float throttle, adc1, adc2;
 	FootpadSensorState state;
 	uint8_t debounce_counter;
 } FootpadSensor;
