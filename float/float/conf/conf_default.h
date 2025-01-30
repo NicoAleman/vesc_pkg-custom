@@ -643,6 +643,11 @@
 #define BIKE_THROTTLE_THRESHOLD 0.1
 #endif
 
+// Startup Ramp Angle
+#ifndef APPCONF_FLOAT_STARTUP_RAMP_ANGLE
+#define APPCONF_FLOAT_STARTUP_RAMP_ANGLE 5
+#endif
+
 // CONF_DEFAULT_H_
 #endif
 
