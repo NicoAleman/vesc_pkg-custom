@@ -138,7 +138,6 @@ int32_t confparser_serialize_float_config(uint8_t *buffer, const float_config *c
 	buffer[ind++] = conf->bike_balance_inputs;
 	buffer[ind++] = (uint8_t)conf->bike_button_debounce_threshold;
 	buffer_append_float16(buffer, conf->bike_throttle_threshold, 1000, &ind);
-	buffer[ind++] = (uint8_t)conf->startup_ramp_angle;
 
 	return ind;
 }
@@ -279,7 +278,6 @@ bool confparser_deserialize_float_config(const uint8_t *buffer, float_config *co
 	conf->bike_balance_inputs = buffer[ind++];
 	conf->bike_button_debounce_threshold = buffer[ind++];
 	conf->bike_throttle_threshold = buffer_get_float16(buffer, 1000, &ind);
-	conf->startup_ramp_angle = buffer[ind++];
 
 	return true;
 }
@@ -413,6 +411,5 @@ void confparser_set_defaults_float_config(float_config *conf) {
 	conf->bike_balance_inputs = BIKE_BALANCE_INPUTS;
 	conf->bike_button_debounce_threshold = BIKE_BUTTON_DEBOUNCE_THRESHOLD;
 	conf->bike_throttle_threshold = BIKE_THROTTLE_THRESHOLD;
-	conf->startup_ramp_angle = APPCONF_FLOAT_STARTUP_RAMP_ANGLE;
 }
 

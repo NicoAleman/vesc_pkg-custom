@@ -171,7 +171,6 @@ typedef struct {
 	uint8_t bike_balance_inputs;
 	uint8_t bike_button_debounce_threshold;
 	float bike_throttle_threshold;
-	uint8_t startup_ramp_angle;
 } float_config;
 
 // DATATYPES_H_

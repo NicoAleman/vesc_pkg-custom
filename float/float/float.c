@@ -1043,37 +1043,16 @@ static void calculate_setpoint_target(data *d) {
 }
 
 static void calculate_setpoint_interpolated(data *d) {
-    if (d->setpoint_target_interpolated != d->setpoint_target) {
-        float step_size = get_setpoint_adjustment_step_size(d);
-        
-        // For centering only, apply smoothing
-        if (d->setpointAdjustmentType == CENTERING) {
-            // Calculate distance from target (0 degrees)
-            float distance = fabsf(d->setpoint_target - d->setpoint_target_interpolated);
-            
-            // Start ramping down step size when within X degrees of target
-            float startup_ramp_angle = d->float_conf.startup_ramp_angle;
-            if (distance < startup_ramp_angle) {
-                // Linear ramp: step_size scales down as we get closer to target
-                step_size *= (distance / startup_ramp_angle);
-                
-                // Ensure minimum step size of 1 deg/sec
-                float min_step = 1.0 / d->float_conf.hertz;  // Convert 1 deg/sec to deg/loop
-                if (step_size < min_step) {
-                    step_size = min_step;
-                }
-            }
-        }
-
-        // If we are less than one step size away, go all the way
-        if (fabsf(d->setpoint_target - d->setpoint_target_interpolated) < step_size) {
-            d->setpoint_target_interpolated = d->setpoint_target;
-        } else if (d->setpoint_target - d->setpoint_target_interpolated > 0) {
-            d->setpoint_target_interpolated += step_size;
-        } else {
-            d->setpoint_target_interpolated -= step_size;
-        }
-    }
+	if (d->setpoint_target_interpolated != d->setpoint_target) {
+		// If we are less than one step size away, go all the way
+		if (fabsf(d->setpoint_target - d->setpoint_target_interpolated) < get_setpoint_adjustment_step_size(d)) {
+			d->setpoint_target_interpolated = d->setpoint_target;
+		} else if (d->setpoint_target - d->setpoint_target_interpolated > 0) {
+			d->setpoint_target_interpolated += get_setpoint_adjustment_step_size(d);
+		} else {
+			d->setpoint_target_interpolated -= get_setpoint_adjustment_step_size(d);
+		}
+	}
 }
 
 static void add_surge(data *d) {
