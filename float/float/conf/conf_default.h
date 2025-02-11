@@ -600,7 +600,7 @@
 
 // Package Version
 #ifndef APPCONF_FLOAT_VERSION
-#define APPCONF_FLOAT_VERSION 2.06
+#define APPCONF_FLOAT_VERSION 2.07
 #endif
 
 // Max Current
@@ -641,6 +641,21 @@
 // Throttle Threshold
 #ifndef BIKE_THROTTLE_THRESHOLD
 #define BIKE_THROTTLE_THRESHOLD 0.1
+#endif
+
+// Angle P
+#ifndef BIKE_SAFETY_BRAKE_KP
+#define BIKE_SAFETY_BRAKE_KP 30
+#endif
+
+// Rate P
+#ifndef BIKE_SAFETY_BRAKE_KP2
+#define BIKE_SAFETY_BRAKE_KP2 1
+#endif
+
+// Safety Brake Pitch Offset
+#ifndef BIKE_SAFETY_BRAKE_PITCH_OFFSET
+#define BIKE_SAFETY_BRAKE_PITCH_OFFSET 1
 #endif
 
 // CONF_DEFAULT_H_

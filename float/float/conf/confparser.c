@@ -138,6 +138,9 @@ int32_t confparser_serialize_float_config(uint8_t *buffer, const float_config *c
 	buffer[ind++] = conf->bike_balance_inputs;
 	buffer[ind++] = (uint8_t)conf->bike_button_debounce_threshold;
 	buffer_append_float16(buffer, conf->bike_throttle_threshold, 1000, &ind);
+	buffer_append_float16(buffer, conf->bike_safety_brake_kp, 10, &ind);
+	buffer_append_float16(buffer, conf->bike_safety_brake_kp2, 100, &ind);
+	buffer_append_float16(buffer, conf->bike_safety_brake_pitch_offset, 10, &ind);
 
 	return ind;
 }
@@ -278,6 +281,9 @@ bool confparser_deserialize_float_config(const uint8_t *buffer, float_config *co
 	conf->bike_balance_inputs = buffer[ind++];
 	conf->bike_button_debounce_threshold = buffer[ind++];
 	conf->bike_throttle_threshold = buffer_get_float16(buffer, 1000, &ind);
+	conf->bike_safety_brake_kp = buffer_get_float16(buffer, 10, &ind);
+	conf->bike_safety_brake_kp2 = buffer_get_float16(buffer, 100, &ind);
+	conf->bike_safety_brake_pitch_offset = buffer_get_float16(buffer, 10, &ind);
 
 	return true;
 }
@@ -411,5 +417,8 @@ void confparser_set_defaults_float_config(float_config *conf) {
 	conf->bike_balance_inputs = BIKE_BALANCE_INPUTS;
 	conf->bike_button_debounce_threshold = BIKE_BUTTON_DEBOUNCE_THRESHOLD;
 	conf->bike_throttle_threshold = BIKE_THROTTLE_THRESHOLD;
+	conf->bike_safety_brake_kp = BIKE_SAFETY_BRAKE_KP;
+	conf->bike_safety_brake_kp2 = BIKE_SAFETY_BRAKE_KP2;
+	conf->bike_safety_brake_pitch_offset = BIKE_SAFETY_BRAKE_PITCH_OFFSET;
 }
 

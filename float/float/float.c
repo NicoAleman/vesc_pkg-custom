@@ -273,6 +273,8 @@ typedef struct {
 	float bike_throttle;
 	float bike_target;
 	float bike_current;
+	float bike_safety_brake_current;
+	float bike_safety_brake_enabled;
 
 	// Log values
 	float float_setpoint, float_atr, float_braketilt, float_torquetilt, float_turntilt, float_inputtilt;
@@ -527,6 +529,8 @@ static void configure(data *d) {
 	d->bike_throttle = 0;
 	d->bike_target = 0;
 	d->bike_current = 0;
+	d->bike_safety_brake_current = 0;
+	d->bike_safety_brake_enabled = false;
 
 	// Variable nose angle adjustment / tiltback (setting is per 1000erpm, convert to per erpm)
 	d->tiltback_variable = d->float_conf.tiltback_variable / 1000;
@@ -634,6 +638,8 @@ static void reset_vars(data *d) {
 	// Float Bike
 	d->bike_current = 0;
 	d->bike_target = 0;
+	d->bike_safety_brake_current = 0;
+	d->bike_safety_brake_enabled = false;
 
 	// Haptic Buzz:
 	d->haptic_tone_in_progress = false;
@@ -2287,16 +2293,40 @@ static void float_thd(void *arg) {
 			// 	}
 			// }
 
-			if ((d->current_time - d->disengage_timer) < 0.008) {
-				// 20ms brake buzz, single tone
-				if (d->float_conf.startup_click_current > 0) {
-					set_current(d, haptic_buzz(d, 0.008, true));
+			if (((d->current_time - d->disengage_timer) < 1) || d->bike_safety_brake_enabled) {
+                if ((d->current_time - d->disengage_timer) < 0.008) {
+                    // 20ms brake buzz, single tone
+                    if (d->float_conf.startup_click_current > 0) {
+                        set_current(d, haptic_buzz(d, 0.008, true));
+                    }
+                }
+
+                // Simple balance loop for brake current to keep from falling backwards
+                float angle_p = fminf(0, -(d->true_pitch_angle + d->float_conf.bike_safety_brake_pitch_offset) * d->float_conf.bike_safety_brake_kp);
+                float rate_p = fminf(0, -d->gyro[1] * d->float_conf.bike_safety_brake_kp2);
+                
+                float current = angle_p + rate_p;
+                
+				if (current < -1) {
+					d->bike_safety_brake_enabled = true;
+					d->bike_current = 0;
+					d->bike_safety_brake_current = (d->bike_safety_brake_current * 0.95) + (current * 0.05);
+					set_brake_current(d, d->bike_safety_brake_current);
+				} else {
+					d->bike_safety_brake_current = (d->bike_safety_brake_current * 0.9);
+					if (d->bike_safety_brake_current < 1) {
+						d->bike_safety_brake_enabled = false;
+						d->bike_safety_brake_current = 0;
+						do_rc_move(d);
+					}
 				}
-			}
-			else {
-				// Set RC current or maintain brake current (and keep WDT happy!)
-				do_rc_move(d);
-			}
+
+				d->pid_value = d->bike_safety_brake_current; // For Debugging in AppUI
+            }
+            else {
+                // Set RC current or maintain brake current (and keep WDT happy!)
+                do_rc_move(d);
+            }
 			break;
 		case (CHARGING):
 			if ((d->current_time - d->charge_timer) > 10) {

@@ -721,7 +721,7 @@ Item {
 					}
 					Text {
 						id: versionText
-						text: "{{VERSION}}.0c_bikeV6"
+						text: "{{VERSION}}.0c_bikeV7"
 						color: Utility.getAppHexColor("lightText")
 						font.pointSize: 10
 						font.weight: Font.Black
